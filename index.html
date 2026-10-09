@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APLIFA | Connexion Conducteur & Inscription</title>
+    <style>
+        *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e2e8f0; }
+        html { line-height: 1.5; font-family: ui-sans-serif, system-ui, sans-serif; }
+        body { margin: 0; background-color: #f1f5f9; color: #1e293b; -webkit-font-smoothing: antialiased; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
+        .w-full { width: 100%; }
+        .max-w-lg { max-width: 32rem; }
+        .bg-slate-900 { background-color: #0f172a; }
+        .rounded-35 { border-radius: 35px; }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); }
+        .overflow-hidden { overflow: hidden; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .border { border-width: 1px; }
+        .border-slate-800 { border-color: #1e293b; }
+        .p-6 { padding: 1.5rem; }
+        @media (min-width: 640px) { .sm-p-8 { padding: 2rem; } }
+        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+        .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+        .text-white { color: #fff; }
+        .text-center { text-align: center; }
+        .w-16 { width: 4rem; }
+        .h-16 { height: 4rem; }
+        .object-cover { object-fit: cover; }
+        .rounded-full { border-radius: 9999px; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .border-2 { border-width: 2px; }
+        .border-accent { border-color: #10b981; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .font-black { font-weight: 900; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-slate-400 { color: #94a3b8; }
+        .p-1-5 { padding: 0.375rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .border-slate-700 { border-color: #334155; }
+        .flex-1 { flex: 1 1 0%; }
+        .py-2-5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .font-bold { font-weight: 700; }
+        .bg-white { background-color: #fff; }
+        .text-slate-900 { color: #0f172a; }
+        .transition { transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1); }
+        .font-medium { font-weight: 500; }
+        .block { display: block; }
+        .font-semibold { font-weight: 600; }
+        .uppercase { text-transform: uppercase; }
+        .mb-1-5 { margin-bottom: 0.375rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .py-3-5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+        .bg-slate-800 { background-color: #1e293b; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .outline-none { outline: 2px solid transparent; outline-offset: 2px; }
+        .tracking-widest { letter-spacing: 0.1em; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .bg-accent { background-color: #10b981; }
+        .text-primary { color: #0f172a; }
+        .hidden { display: none; }
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        @media (min-width: 640px) {
+            .sm-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .sm-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        .gap-3 { gap: 0.75rem; }
+        .text-10px { font-size: 10px; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .py-2-5-sm { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+        .bg-primary { background-color: #0f172a; }
+        .pt-2 { padding-top: 0.5rem; }
+        .border-t { border-top-width: 1px; }
+        a { text-decoration: inherit; color: inherit; }
+        input { font-family: inherit; font-size: 100%; color: inherit; margin: 0; padding: 0; }
+        button { cursor: pointer; background: transparent; }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-lg bg-slate-900 rounded-35 shadow-2xl overflow-hidden flex flex-col border border-slate-800 p-6 sm-p-8 space-y-6 text-white">
+        
+        <div class="text-center space-y-2">
+            <img src="logo.jpeg" alt="Logo APLIFA" class="w-16 h-16 object-cover rounded-full mx-auto border-2 border-accent shadow-lg">
+            <h1 class="text-2xl font-black">Mon APLIFA</h1>
+            <p class="text-xs text-slate-400">Accédez à votre espace SL service Moto</p>
+        </div>
+
+        <div class="flex bg-slate-800 p-1-5 rounded-2xl border border-slate-700">
+            <button onclick="basculerMode('connexion')" id="btn-mode-connexion" class="flex-1 py-2-5 rounded-xl text-xs font-bold bg-white text-slate-900 transition">Connexion</button>
+            <button onclick="basculerMode('inscription')" id="btn-mode-inscription" class="flex-1 py-2-5 rounded-xl text-xs font-medium text-slate-400 transition">Première Connexion</button>
+        </div>
+
+        <form id="form-connexion" onsubmit="gererConnexion(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1-5">Numéro de Téléphone</label>
+                <input type="tel" id="login-tel" required placeholder="+243..." class="w-full px-4 py-3-5 bg-slate-800 border border-slate-700 rounded-2xl text-sm text-white outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1-5">Code Secret / PIN (4 chiffres)</label>
+                <input type="password" id="login-pin" maxlength="4" required placeholder="••••" class="w-full px-4 py-3-5 bg-slate-800 border border-slate-700 rounded-2xl text-sm tracking-widest text-white outline-none">
+            </div>
+            <button type="submit" class="w-full py-4 bg-accent text-primary font-bold rounded-2xl transition text-sm shadow-lg">
+                Se Connecter
+            </button>
+        </form>
+
+        <form id="form-inscription" onsubmit="gererInscription(event)" class="space-y-4 hidden">
+            <div class="grid grid-cols-1 sm-grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Nom</label>
+                    <input type="text" id="reg-nom" required placeholder="Nom" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Post-nom</label>
+                    <input type="text" id="reg-postnom" placeholder="Post-nom" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Prénom</label>
+                    <input type="text" id="reg-prenom" required placeholder="Prénom" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs text-white outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm-grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Téléphone Mobile</label>
+                    <input type="tel" id="reg-tel" required placeholder="+243..." class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Marque Moto / Véhicule</label>
+                    <input type="text" id="reg-moto" required placeholder="Ex: Haojue 125cc" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs text-white outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm-grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Adresse / Quartier</label>
+                    <input type="text" id="reg-adresse" required placeholder="Avenue / Quartier" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Ville</label>
+                    <input type="text" id="reg-ville" required value="Mbanza-Ngungu" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs text-white outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm-grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Code d'Accès Unique (Admin)</label>
+                    <input type="text" id="reg-code-acces" required placeholder="APLIFA-XXXX" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs tracking-widest text-white outline-none uppercase">
+                </div>
+                <div>
+                    <label class="block text-10px font-semibold text-slate-400 uppercase mb-1">Code PIN (4 chiffres)</label>
+                    <input type="password" id="reg-pin" maxlength="4" required placeholder="••••" class="w-full px-3 py-2-5-sm bg-slate-800 border border-slate-700 rounded-xl text-xs tracking-widest text-white outline-none">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3-5 bg-primary text-white font-bold rounded-2xl transition border border-slate-700 text-xs shadow-lg">
+                Activer mon Compte & Enregistrer le Dossier
+            </button>
+        </form>
+
+        <div class="text-center pt-2 border-t border-slate-800">
+            <a href="changer.html" class="text-xs text-slate-400 transition">🔒 Changer mon code PIN</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxtMLS_VyhSVSooqJCDjUQShgSgSPTdXo",
+            authDomain: "suivi-gps-48811.firebaseapp.com",
+            projectId: "suivi-gps-48811",
+            storageBucket: "suivi-gps-48811.firebasestorage.app",
+            messagingSenderId: "147934111832",
+            appId: "1:147934111832:web:42a5f278d0636c17f4c22d"
+        };
+        const db = getFirestore(initializeApp(firebaseConfig));
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTel = localStorage.getItem('clientTel');
+            if (savedTel) {
+                window.location.href = "profil.html";
+            }
+        });
+
+        window.basculerMode = function(mode) {
+            const cBtn = document.getElementById('btn-mode-connexion');
+            const iBtn = document.getElementById('btn-mode-inscription');
+            const cForm = document.getElementById('form-connexion');
+            const iForm = document.getElementById('form-inscription');
+
+            if(mode === 'connexion') {
+                cBtn.className = "flex-1 py-2-5 rounded-xl text-xs font-bold bg-white text-slate-900 transition";
+                iBtn.className = "flex-1 py-2-5 rounded-xl text-xs font-medium text-slate-400 transition";
+                cForm.classList.remove('hidden'); iForm.classList.add('hidden');
+            } else {
+                iBtn.className = "flex-1 py-2-5 rounded-xl text-xs font-bold bg-white text-slate-900 transition";
+                cBtn.className = "flex-1 py-2-5 rounded-xl text-xs font-medium text-slate-400 transition";
+                iForm.classList.remove('hidden'); cForm.classList.add('hidden');
+            }
+        }
+
+        window.gererConnexion = async function(e) {
+            e.preventDefault();
+
+            // Vérification préalable de la connexion Internet
+            if (!navigator.onLine) {
+                alert("Vérifiez votre connexion Internet et réessayez.");
+                return;
+            }
+
+            const tel = document.getElementById('login-tel').value.trim();
+            const pin = document.getElementById('login-pin').value.trim();
+            
+            try {
+                const q = query(collection(db, "credits"), where("telephone", "==", tel));
+                const snap = await getDocs(q);
+                
+                if(!snap.empty) {
+                    const userDoc = snap.docs[0];
+                    let data = userDoc.data();
+                    
+                    if(String(data.pin).trim() === String(pin)) {
+                        localStorage.setItem('clientTel', tel);
+                        window.location.href = "profil.html";
+                    } else { 
+                        alert("Code PIN incorrect."); 
+                    }
+                } else { 
+                    alert("Aucun compte trouvé avec ce numéro. Utilisez 'Première Connexion'."); 
+                }
+            } catch(err) { 
+                alert("Impossible de joindre le serveur. Vérifiez votre connexion Internet."); 
+            }
+        }
+
+        window.gererInscription = async function(e) {
+            e.preventDefault();
+
+            if (!navigator.onLine) {
+                alert("Vérifiez votre connexion Internet et réessayez.");
+                return;
+            }
+
+            const nom = document.getElementById('reg-nom').value.trim();
+            const postnom = document.getElementById('reg-postnom').value.trim();
+            const prenom = document.getElementById('reg-prenom').value.trim();
+            const tel = document.getElementById('reg-tel').value.trim();
+            const motoMarque = document.getElementById('reg-moto').value.trim();
+            const adresse = document.getElementById('reg-adresse').value.trim();
+            const ville = document.getElementById('reg-ville').value.trim();
+            const codeAcces = document.getElementById('reg-code-acces').value.trim().toUpperCase();
+            const pin = document.getElementById('reg-pin').value.trim();
+
+            try {
+                const qTel = query(collection(db, "credits"), where("telephone", "==", tel));
+                const snapTel = await getDocs(qTel);
+
+                if (!snapTel.empty) {
+                    alert("Ce numéro de téléphone est déjà associé à un compte. Veuillez vous connecter.");
+                    basculerMode('connexion');
+                    document.getElementById('login-tel').value = tel;
+                    return;
+                }
+
+                const qCode = query(collection(db, "codes_acces"), where("code", "==", codeAcces), where("utilise", "==", false));
+                const snapCode = await getDocs(qCode);
+
+                if(snapCode.empty) {
+                    alert("Code d'accès unique invalide ou déjà utilisé.");
+                    return;
+                }
+
+                let codeDocId = null;
+                snapCode.forEach(docSnap => { 
+                    codeDocId = docSnap.id; 
+                });
+
+                const nomComplet = `${nom} ${postnom} ${prenom}`.trim();
+                await addDoc(collection(db, "credits"), { 
+                    nomClient: nomComplet,
+                    nom: nom,
+                    postnom: postnom,
+                    prenom: prenom,          
+                    telephone: tel,
+                    marqueMoto: motoMarque,
+                    adresse: adresse,
+                    ville: ville,          
+                    pin: pin,                
+                    codeUtilise: codeAcces,  
+                    totalCredit: 1250000, 
+                    montantVersé: 0,         
+                    statut: "actif",         
+                    createdAt: new Date() 
+                });
+
+                if(codeDocId) {
+                    await updateDoc(doc(db, "codes_acces", codeDocId), {
+                        utilise: true,
+                        utilisePar: tel,
+                        dateUtilisation: new Date()
+                    });
+                }
+
+                alert("Compte activé et dossier enregistré avec succès ! Vous pouvez maintenant vous connecter.");
+                basculerMode('connexion');
+                document.getElementById('login-tel').value = tel;
+
+            } catch(err) { 
+                alert("Erreur lors de l'inscription : " + err.message); 
+            }
+        }
+    </script>
+</body>
+</html>

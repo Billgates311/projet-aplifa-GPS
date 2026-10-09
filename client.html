@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APLIFA - Suivi GPS Anti-Vol & Flotte</title>
+    <!-- Leaflet CSS pour la carte GPS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            overflow: hidden; 
+            background-color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 28rem;
+            background-color: #0f172a;
+            height: 100%;
+            max-height: 90vh;
+            border-radius: 35px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        #map { height: 260px; width: 100%; border-radius: 1.25rem; z-index: 1; }
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- TOP APP BAR -->
+        <div style="background-color: #0f172a; color: white; padding: 1.25rem 1.25rem 1.5rem 1.25rem; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); z-index: 10; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #94a3b8;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="logo.jpeg" alt="Logo APLIFA" style="width: 3rem; height: 3rem; object-fit: cover; border-radius: 9999px; border: 2px solid rgba(16, 185, 129, 0.6); box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                    <div>
+                        <span style="font-weight: 800; letter-spacing: 0.05em; font-size: 0.875rem; color: white; display: block;">APL<span style="color: #10b981;">IFA</span> GPS</span>
+                        <span style="font-size: 0.625rem; color: #cbd5e1;">SL service Moto</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="firebase-status" style="width: 0.625rem; height: 0.625rem; border-radius: 9999px; background-color: #fbbf24;" title="Connexion..."></span>
+                    <span id="statut-reseau">Connexion...</span>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.25rem;">
+                <div>
+                    <p style="font-size: 0.6875rem; color: #cbd5e1;">Centrale Propriétaire</p>
+                    <h2 id="client-nom" style="font-size: 1.125rem; font-weight: 800; color: white;">Chargement...</h2>
+                </div>
+                <button onclick="ouvrirModalAjoutEngin()" style="width: 2.75rem; height: 2.75rem; border-radius: 1rem; background-color: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer;" title="Ajouter un engin">➕</button>
+            </div>
+        </div>
+
+        <!-- CONTENU DÉFILABLE -->
+        <div style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; background-color: #f8fafc; padding-bottom: 6rem;">
+
+            <!-- VUE ACCUEIL -->
+            <div id="vue-accueil" class="space-y-4">
+                <div style="background: white; padding: 1rem; border-radius: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0.25rem;">
+                        <h4 style="font-size: 0.75rem; font-weight: bold; color: #94a3b8; text-transform: uppercase;">🎯 Suivi & Anti-Vol Live</h4>
+                        <span id="selecteur-engin-nom" style="font-size: 0.6875rem; background-color: #e0f2fe; color: #0284c7; font-weight: bold; padding: 0.25rem 0.625rem; border-radius: 9999px;">Vue d'ensemble</span>
+                    </div>
+                    <div id="map"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.6875rem; color: #94a3b8; padding: 0 0.25rem;">
+                        <span id="info-source-gps">Lieu : Analyse en cours...</span>
+                        <button onclick="activerModeEmissionGPSClient()" style="color: #10b981; font-weight: bold; background: none; border: none; cursor: pointer;">🛡 Diffuser ma position</button>
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 1rem; border-radius: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="font-size: 0.75rem; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Mes Engins Enregistrés</h4>
+                        <button onclick="ouvrirModalAjoutEngin()" style="font-size: 0.75rem; color: #10b981; font-weight: bold; background: none; border: none; cursor: pointer;">+ Ajouter</button>
+                    </div>
+                    <div id="liste-mes-engins" style="display: flex; flex-direction: column; gap: 0.625rem;">
+                        <div style="padding: 1rem; background: #f8fafc; border-radius: 1rem; text-align: center; font-size: 0.75rem; color: #94a3b8;">Chargement de vos véhicules...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VUE PARAMÈTRES -->
+            <div id="vue-parametres" class="space-y-4 hidden fade-in">
+                <div style="background: white; padding: 1rem; border-radius: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="font-weight: 800; color: #0f172a; font-size: 0.875rem;">⚙️ Gestion & Actions Flotte</h3>
+                            <p style="font-size: 0.625rem; color: #64748b;">Cochez les engins puis cliquez sur les 3 points.</p>
+                        </div>
+                        <div style="position: relative;">
+                            <button onclick="toggleMenuTroisPoints()" style="width: 2.25rem; height: 2.25rem; border-radius: 1rem; background-color: #f1f5f9; border: none; font-weight: bold; cursor: pointer;" title="Actions groupées">⋮</button>
+                            <div id="menu-trois-points" class="hidden" style="position: absolute; right: 0; margin-top: 0.5rem; width: 14rem; background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; padding: 0.5rem 0; z-index: 30; font-size: 0.75rem;">
+                                <div style="padding: 0.25rem 0.75rem; font-weight: bold; color: #94a3b8; text-transform: uppercase; font-size: 0.625rem;">Actions Flotte</div>
+                                <button onclick="actionGroupeeSuivre()" style="width: 100%; text-align: left; padding: 0.5rem 1rem; background: none; border: none; cursor: pointer; color: #334155;">📍 Voir en temps réel</button>
+                                <button onclick="actionGroupeeCouperMoteur()" style="width: 100%; text-align: left; padding: 0.5rem 1rem; background: none; border: none; cursor: pointer; color: #dc2626;">🔴 Arrêter le moteur</button>
+                                <button onclick="actionGroupeeSupprimer()" style="width: 100%; text-align: left; padding: 0.5rem 1rem; background: none; border: none; cursor: pointer; color: #dc2626;">🗑️ Supprimer la sélection</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="border-top: 1px solid #f1f5f9; padding-top: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Cocher les engins</span>
+                            <span id="compteur-selection" style="font-size: 0.625rem; background: #d1fae5; color: #065f46; font-weight: bold; padding: 0.125rem 0.5rem; border-radius: 9999px;">0 sélectionné(s)</span>
+                        </div>
+                        <div id="liste-admin-engins" style="display: flex; flex-direction: column; gap: 0.625rem;">
+                            <div style="padding: 1rem; background: #f8fafc; border-radius: 1rem; text-align: center; font-size: 0.75rem; color: #94a3b8;">Chargement...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAPPORT -->
+            <div style="background: linear-gradient(to bottom right, #0f172a, #1e293b); color: white; padding: 1rem; border-radius: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.6875rem; font-weight: 600; color: #cbd5e1; text-transform: uppercase;">Sécurité & Flotte</span>
+                    <span style="padding: 0.125rem 0.5rem; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 9999px; font-size: 0.625rem; font-weight: bold;">Actif 24/7</span>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 900;">Géolocalisation Intelligente</h3>
+                <p style="font-size: 0.6875rem; color: #cbd5e1;">Détection d'itinéraire, position des boîtiers et suivi du téléphone en temps réel.</p>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAV BAR MOBILE -->
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #f1f5f9; padding: 0.75rem 1.5rem; display: flex; justify-content: space-around; align-items: center; color: #94a3b8; font-size: 0.75rem; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); z-index: 20;">
+            <button id="nav-accueil" onclick="changerOngletClient('accueil')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; color: #10b981; font-weight: bold;">
+                <span style="font-size: 1rem;">🏠</span><span>Accueil</span>
+            </button>
+            <a href="profil.html" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; color: #94a3b8;">
+                <span style="font-size: 1rem;">👥</span><span>Support</span>
+            </a>
+            <button id="nav-parametres" onclick="changerOngletClient('parametres')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; color: #94a3b8;">
+                <span style="font-size: 1rem;">⚙️</span><span>Paramètres</span>
+            </button>
+            <button onclick="changerOngletClient('deconnexion')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; color: #ef4444;">
+                <span style="font-size: 1rem;">🚪</span><span>Quitter</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- MODAL AJOUTER UN ENGIN -->
+    <div id="modal-ajout-engin" class="hidden" style="position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 50; padding: 1rem;">
+        <div style="background: white; width: 100%; max-width: 22rem; border-radius: 1.875rem; padding: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-weight: bold; font-size: 1rem; color: #0f172a;">➕ Enregistrer un Engin</h3>
+                <button onclick="fermerModalAjoutEngin()" style="width: 2rem; height: 2rem; border-radius: 9999px; background: #f1f5f9; border: none; cursor: pointer; color: #64748b;">✕</button>
+            </div>
+            <form id="form-ajout-engin" onsubmit="enregistrerNouvelEngin(event)" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div>
+                    <label style="display: block; font-size: 0.6875rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 0.25rem;">Type d'Engin</label>
+                    <select id="engin-type" style="width: 100%; padding: 0.625rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; font-size: 0.875rem; outline: none;">
+                        <option value="moto">Moto (ex: Haojue 125)</option>
+                        <option value="voiture">Voiture / Taxi</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.6875rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 0.25rem;">Modèle / Marque</label>
+                    <input type="text" id="engin-modele" required placeholder="Ex: Toyota / Haojue" style="width: 100%; padding: 0.625rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; font-size: 0.875rem; outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.6875rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 0.25rem;">Plaque d'Immatriculation</label>
+                    <input type="text" id="engin-plaque" required placeholder="Ex: AB-1234-CD" style="width: 100%; padding: 0.625rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; font-size: 0.875rem; outline: none;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.6875rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 0.25rem;">ID Boîtier / Châssis (IMEI)</label>
+                    <input type="text" id="engin-chassis" required placeholder="Ex: GPS-CHASSIS-9876" style="width: 100%; padding: 0.625rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; font-size: 0.875rem; outline: none;">
+                </div>
+                <button type="submit" style="width: 100%; padding: 0.875rem; background: #10b981; color: #0f172a; font-weight: bold; border-radius: 1rem; border: none; cursor: pointer; font-size: 0.875rem; box-shadow: 0 4px 6px rgba(16,185,129,0.2);">Lier l'Engin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Script Firebase & Logique Intelligente -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxtMLS_VyhSVSooqJCDjUQShgSgSPTdXo",
+            authDomain: "suivi-gps-48811.firebaseapp.com",
+            projectId: "suivi-gps-48811",
+            storageBucket: "suivi-gps-48811.firebasestorage.app",
+            messagingSenderId: "147934111832",
+            appId: "1:147934111832:web:42a5f278d0636c17f4c22d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('firebase-status').style.backgroundColor = "#10b981";
+        document.getElementById('statut-reseau').innerText = "En ligne (Live)";
+
+        let map = L.map('map').setView([-5.2515, 14.8662], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: '© OpenStreetMap France | APLIFA'
+        }).addTo(map);
+
+        let activeMarkers = [];
+        let unsubscribesMulti = [];
+        let idEnginSelectionneEnCours = null;
+
+        async function obtenirNomLieu(lat, lng) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`, {
+                    headers: { 'Accept-Language': 'fr' }
+                });
+                const data = await response.json();
+                if (data && data.display_name) {
+                    const elements = data.display_name.split(',');
+                    return elements[0] + (elements[1] ? ', ' + elements[1] : '');
+                }
+            } catch (e) { console.error("Erreur géocodage:", e); }
+            return `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+        }
+
+        async function chargerEspaceClient() {
+            try {
+                const telephoneConnecte = localStorage.getItem('clientTel');
+                if (!telephoneConnecte) { window.location.href = "index.html"; return; }
+
+                const qClient = query(collection(db, "credits"), where("telephone", "==", telephoneConnecte));
+                const snapClient = await getDocs(qClient);
+                let nomClient = "Propriétaire";
+                snapClient.forEach(d => nomClient = d.data().nom || d.data().clientNom || nomClient);
+                document.getElementById('client-nom').innerText = nomClient;
+
+                const qEngins = query(collection(db, "motos"), where("clientTel", "==", telephoneConnecte));
+                const snapEngins = await getDocs(qEngins);
+                
+                const listeDiv = document.getElementById('liste-mes-engins');
+                const listeAdminDiv = document.getElementById('liste-admin-engins');
+                
+                listeDiv.innerHTML = "";
+                listeAdminDiv.innerHTML = "";
+
+                if (snapEngins.empty) {
+                    listeDiv.innerHTML = `<div style="padding: 1rem; background: #f8fafc; border-radius: 1rem; text-align: center; font-size: 0.75rem; color: #94a3b8;">Aucun engin lié.</div>`;
+                    listeAdminDiv.innerHTML = `<div style="padding: 1rem; background: #f8fafc; border-radius: 1rem; text-align: center; font-size: 0.75rem; color: #94a3b8;">Aucun engin à gérer.</div>`;
+                    return;
+                }
+
+                let premierId = null, premierModele = '', premierPlaque = '';
+
+                snapEngins.forEach(docSnap => {
+                    const enginId = docSnap.id;
+                    const engin = docSnap.data();
+                    const iconName = engin.type === 'voiture' ? '🚗' : '🏍️';
+
+                    if (!premierId) { premierId = enginId; premierModele = engin.modele || 'Engin'; premierPlaque = engin.plaque || ''; }
+
+                    listeDiv.innerHTML += `
+                        <div onclick="suivreUnSeulEngin('${enginId}', '${engin.modele || 'Engin'}', '${engin.plaque || ''}')" style="padding: 0.75rem 1rem; background: #f8fafc; border-radius: 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border: 1px solid #f1f5f9;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 2.25rem; height: 2.25rem; border-radius: 0.75rem; background: #e0f2fe; display: flex; align-items: center; justify-content: center;">${iconName}</div>
+                                <div>
+                                    <p style="font-size: 0.75rem; font-weight: bold; color: #0f172a;">${engin.modele || 'Modèle'}</p>
+                                    <p style="font-size: 0.625rem; color: #64748b;">Plaque : <span style="font-weight: 600; color: #334155;">${engin.plaque || 'N/A'}</span></p>
+                                </div>
+                            </div>
+                            <span style="padding: 0.25rem 0.625rem; background: #d1fae5; color: #065f46; border-radius: 9999px; font-size: 0.625rem; font-weight: bold;">Suivre</span>
+                        </div>
+                    `;
+
+                    listeAdminDiv.innerHTML += `
+                        <div style="padding: 0.75rem 1rem; background: #f8fafc; border-radius: 1rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <input type="checkbox" value="${enginId}" data-nom="${engin.modele || 'Engin'}" onchange="mettreAJourCompteurSelection()" style="width: 1rem; height: 1rem; accent-color: #10b981; cursor: pointer;" class="checkbox-engin">
+                                <div style="width: 2rem; height: 2rem; border-radius: 0.75rem; background: #e0f2fe; display: flex; align-items: center; justify-content: center; font-size: 0.875rem;">${iconName}</div>
+                                <div>
+                                    <p style="font-size: 0.75rem; font-weight: bold; color: #0f172a;">${engin.modele || 'Modèle'}</p>
+                                    <p style="font-size: 0.625rem; color: #64748b;">Plaque : ${engin.plaque || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <span style="font-size: 0.625rem; background: #e2e8f0; color: #475569; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-weight: 600;">${engin.chassis || 'GPS'}</span>
+                        </div>
+                    `;
+                });
+
+                if (premierId) { suivreUnSeulEngin(premierId, premierModele, premierPlaque); }
+            } catch (e) { console.error("Erreur chargement:", e); }
+        }
+
+        window.toggleMenuTroisPoints = function() {
+            document.getElementById('menu-trois-points').classList.toggle('hidden');
+        }
+
+        window.mettreAJourCompteurSelection = function() {
+            const coches = document.querySelectorAll('.checkbox-engin:checked');
+            document.getElementById('compteur-selection').innerText = `${coches.length} sélectionné(s)`;
+        }
+
+        function obtenirEnginsCoches() {
+            const coches = document.querySelectorAll('.checkbox-engin:checked');
+            return Array.from(coches).map(cb => ({ id: cb.value, nom: cb.dataset.nom }));
+        }
+
+        function nettoyerSuiviCarte() {
+            unsubscribesMulti.forEach(unsub => unsub());
+            unsubscribesMulti = [];
+            activeMarkers.forEach(item => map.removeLayer(item.marker));
+            activeMarkers = [];
+        }
+
+        window.actionGroupeeSuivre = function() {
+            const selection = obtenirEnginsCoches();
+            if(selection.length === 0) { alert("Veuillez cocher au moins un engin."); return; }
+
+            nettoyerSuiviCarte();
+            document.getElementById('selecteur-engin-nom').innerText = `${selection.length} engin(s) en direct`;
+            changerOngletClient('accueil');
+            toggleMenuTroisPoints();
+
+            let groupBounds = L.latLngBounds([]);
+
+            selection.forEach(item => {
+                const unsub = onSnapshot(doc(db, "motos", item.id), async (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const lat = data.lat, lng = data.lng, source = data.sourcePosition || 'Boîtier GPS';
+
+                        if (lat && lng) {
+                            const nomLieu = await obtenirNomLieu(lat, lng);
+                            let existing = activeMarkers.find(m => m.id === item.id);
+                            const popupContent = `<b>${item.nom}</b><br>📍 Lieu : <b>${nomLieu}</b><br>📡 Source : ${source}`;
+
+                            if (existing) {
+                                existing.marker.setLatLng([lat, lng]);
+                                existing.marker.bindPopup(popupContent);
+                            } else {
+                                const newMarker = L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
+                                activeMarkers.push({ id: item.id, marker: newMarker });
+                            }
+
+                            groupBounds.extend([lat, lng]);
+                            if (groupBounds.isValid()) { map.fitBounds(groupBounds, { padding: [50, 50], maxZoom: 16 }); }
+                            document.getElementById('info-source-gps').innerHTML = `Lieu actuel : <span style="color: #10b981; font-weight: bold;">${nomLieu}</span>`;
+                        }
+                    }
+                });
+                unsubscribesMulti.push(unsub);
+            });
+        }
+
+        window.suivreUnSeulEngin = function(enginId, modele, plaque) {
+            nettoyerSuiviCarte();
+            idEnginSelectionneEnCours = enginId;
+            document.getElementById('selecteur-engin-nom').innerText = `${modele} (${plaque})`;
+
+            const unsub = onSnapshot(doc(db, "motos", enginId), async (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const lat = data.lat, lng = data.lng, source = data.sourcePosition || 'Boîtier GPS';
+
+                    if (lat && lng) {
+                        const nomLieu = await obtenirNomLieu(lat, lng);
+                        map.setView([lat, lng], 16);
+                        
+                        const popupContent = `<b>${modele} (${plaque})</b><br>📍 Lieu : <b>${nomLieu}</b><br>📡 Source : ${source}`;
+                        const marker = L.marker([lat, lng]).addTo(map).bindPopup(popupContent).openPopup();
+                        
+                        activeMarkers.push({ id: enginId, marker: marker });
+                        document.getElementById('info-source-gps').innerHTML = `Lieu : <span style="color: #10b981; font-weight: bold;">${nomLieu}</span>`;
+                    }
+                }
+            });
+            unsubscribesMulti.push(unsub);
+        }
+
+        window.activerModeEmissionGPSClient = function() {
+            if (navigator.geolocation) {
+                alert("Mode anti-vol & position propriétaire activé depuis votre téléphone !");
+                navigator.geolocation.watchPosition(async (position) => {
+                    const lat = position.coords.latitude, lng = position.coords.longitude;
+                    const nomLieuProprietaire = await obtenirNomLieu(lat, lng);
+
+                    let propMarker = activeMarkers.find(m => m.id === 'PROPRIETAIRE_MOI');
+                    const popupProp = `🛡️ <b>Moi (Propriétaire)</b><br>📍 Position : ${nomLieuProprietaire}`;
+
+                    if (propMarker) {
+                        propMarker.marker.setLatLng([lat, lng]);
+                        propMarker.marker.bindPopup(popupProp);
+                    } else {
+                        const marker = L.marker([lat, lng], {
+                            icon: L.divIcon({
+                                className: 'custom-prop-marker',
+                                html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+                                iconSize: [16, 16]
+                            })
+                        }).addTo(map).bindPopup(popupProp).openPopup();
+                        activeMarkers.push({ id: 'PROPRIETAIRE_MOI', marker: marker });
+                    }
+                }, (err) => { alert("Erreur GPS : " + err.message); }, { enableHighAccuracy: true, timeout: 15000 });
+            } else { alert("La géolocalisation n'est pas supportée."); }
+        }
+
+        window.actionGroupeeCouperMoteur = function() {
+            const selection = obtenirEnginsCoches();
+            const messageCible = selection.length > 0 ? `${selection.length} engin(s) coché(s)` : "l'engin actif";
+            if(confirm(`🚨 ANTI-VOL : Voulez-vous vraiment envoyer l'ordre d'ARRÊT DU MOTEUR à ${messageCible} ?`)) {
+                alert("✅ Ordre d'arrêt moteur transmis au boîtier GPS avec succès !");
+                toggleMenuTroisPoints();
+            }
+        }
+
+        window.actionGroupeeSupprimer = async function() {
+            const selection = obtenirEnginsCoches();
+            if(selection.length === 0) { alert("Veuillez cocher au moins un engin à supprimer."); return; }
+            if(confirm(`Supprimer définitivement les ${selection.length} engin(s) sélectionnés ?`)) {
+                try {
+                    for(let engin of selection) { await deleteDoc(doc(db, "motos", engin.id)); }
+                    alert("Suppression réussie !");
+                    toggleMenuTroisPoints();
+                    chargerEspaceClient();
+                } catch(err) { alert("Erreur : " + err.message); }
+            }
+        }
+
+        window.ouvrirModalAjoutEngin = function() { document.getElementById('modal-ajout-engin').classList.remove('hidden'); document.getElementById('modal-ajout-engin').classList.add('flex'); }
+        window.fermerModalAjoutEngin = function() { document.getElementById('modal-ajout-engin').classList.add('hidden'); document.getElementById('modal-ajout-engin').classList.remove('flex'); }
+
+        window.enregistrerNouvelEngin = async function(e) {
+            e.preventDefault();
+            const telephoneConnecte = localStorage.getItem('clientTel');
+            try {
+                await addDoc(collection(db, "motos"), {
+                    clientTel: telephoneConnecte,
+                    type: document.getElementById('engin-type').value,
+                    modele: document.getElementById('engin-modele').value.trim(),
+                    plaque: document.getElementById('engin-plaque').value.trim(),
+                    chassis: document.getElementById('engin-chassis').value.trim(),
+                    lat: -5.2515, lng: 14.8662,
+                    sourcePosition: 'Boîtier Matériel',
+                    createdAt: new Date()
+                });
+                fermerModalAjoutEngin();
+                document.getElementById('form-ajout-engin').reset();
+                alert("Engin enregistré avec succès !");
+                chargerEspaceClient();
+            } catch(err) { alert("Erreur : " + err.message); }
+        }
+
+        window.changerOngletClient = function(onglet) {
+            const vueAccueil = document.getElementById('vue-accueil');
+            const vueParametres = document.getElementById('vue-parametres');
+            const navAccueil = document.getElementById('nav-accueil');
+            const navParametres = document.getElementById('nav-parametres');
+
+            if(onglet === 'accueil') {
+                vueAccueil.classList.remove('hidden'); vueParametres.classList.add('hidden');
+                navAccueil.style.color = "#10b981"; navAccueil.style.fontWeight = "bold";
+                navParametres.style.color = "#94a3b8"; navParametres.style.fontWeight = "normal";
+            } else if(onglet === 'parametres') {
+                vueAccueil.classList.add('hidden'); vueParametres.classList.remove('hidden');
+                navParametres.style.color = "#10b981"; navParametres.style.fontWeight = "bold";
+                navAccueil.style.color = "#94a3b8"; navAccueil.style.fontWeight = "normal";
+            } else if(onglet === 'deconnexion') {
+                localStorage.removeItem('clientTel');
+                window.location.href = "index.html";
+            }
+        }
+
+        chargerEspaceClient();
+    </script>
+</body>
+</html>

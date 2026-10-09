@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon APLIFA | Espace Client</title>
+    <style>
+        /* CSS PUR INTÉGRÉ DANS LA PAGE */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* CONTENEUR PRINCIPAL TYPE APPLI MOBILE */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: #0f172a;
+            height: 100%;
+            max-height: 90vh;
+            border-radius: 35px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* TOP APP BAR */
+        .top-bar {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 20px;
+            padding-bottom: 24px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .top-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid rgba(16, 185, 129, 0.6);
+        }
+
+        .logo-title {
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            font-size: 14px;
+            color: #ffffff;
+            display: block;
+        }
+
+        .logo-title span {
+            color: #10b981;
+        }
+
+        .logo-sub {
+            font-size: 10px;
+            color: #cbd5e1;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notif-btn {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #1e293b;
+            color: #ffffff;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notif-btn:hover {
+            background-color: #334155;
+        }
+
+        .badge-ping {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            animation: ping 1s infinite;
+        }
+
+        .badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            background-color: #ef4444;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: bold;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes ping {
+            0% { transform: scale(1); opacity: 1; }
+            75%, 100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .network-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #fbbf24;
+        }
+
+        .user-welcome-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .user-welcome-row p {
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+
+        .user-welcome-row h2 {
+            font-size: 18px;
+            font-weight: 850;
+            color: #ffffff;
+            margin-top: 2px;
+        }
+
+        .user-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            background-color: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* BANNIÈRE DE NOTIFICATION ÉLÉGANTE */
+        .notification-banner {
+            display: none;
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            color: #ffffff;
+            margin: 12px 16px 0 16px;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .notification-close {
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* BANNIÈRE ALERTE BLOCAGE GPS */
+        .alert-block {
+            display: none;
+            background-color: #ef4444;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* CONTENU DÉFILABLE */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 100px;
+        }
+
+        /* CARTE FINANCIÈRE GLOBALE */
+        .finance-card {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #ffffff;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .finance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .finance-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .status-badge.closed {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .solde-amount {
+            font-size: 30px;
+            font-weight: 900;
+            color: #10b981;
+            margin-top: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .solde-amount span {
+            font-size: 14px;
+            font-weight: normal;
+            color: #cbd5e1;
+        }
+
+        .finance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(51, 65, 85, 0.6);
+        }
+
+        .finance-sub-box {
+            background: rgba(15, 23, 42, 0.4);
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(51, 65, 85, 0.4);
+        }
+
+        .finance-sub-box span {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+        }
+
+        .finance-sub-box p {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 4px;
+        }
+
+        .finance-sub-box p.green {
+            color: #34d399;
+        }
+
+        .progress-box {
+            margin-top: 16px;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            background-color: rgba(51, 65, 85, 0.6);
+            border-radius: 9999px;
+            height: 10px;
+            overflow: hidden;
+            padding: 2px;
+        }
+
+        .progress-bar-fill {
+            background-color: #10b981;
+            height: 100%;
+            border-radius: 9999px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* SECTION PROCHAINE ÉCHÉANCE */
+        .echeance-card {
+            background-color: #fffbeb;
+            border: 1px solid rgba(252, 211, 77, 0.6);
+            padding: 20px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .echeance-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #92400e;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .echeance-main {
+            font-size: 17px;
+            font-weight: 850;
+            color: #0f172a;
+        }
+
+        .echeance-sub {
+            font-size: 11px;
+            color: #b45309;
+            margin-top: 2px;
+        }
+
+        .btn-payer {
+            background-color: #d97706;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.3);
+            transition: background 0.2s;
+        }
+
+        .btn-payer:hover {
+            background-color: #b45309;
+        }
+
+        /* BOUTON CARTE GPS */
+        .map-box {
+            background-color: #ffffff;
+            padding: 16px;
+            border-radius: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .btn-map {
+            width: 100%;
+            background-color: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.3);
+            transition: background 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-map:hover {
+            background-color: #0369a1;
+        }
+
+        .btn-map.disabled {
+            background-color: #334155;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* BLOC MOTO ATTRIBUÉE */
+        .moto-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .moto-flex {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .moto-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background-color: #f0f9ff;
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .moto-info h4 {
+            font-size: 14px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .moto-info p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .moto-info span {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* HISTORIQUE PAIEMENTS */
+        .payments-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .payments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .payments-header span {
+            font-size: 11px;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .payments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .payment-item {
+            padding: 12px;
+            background-color: #f8fafc;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .payment-item p {
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .payment-item span.sub {
+            font-size: 10px;
+            color: #94a3b8;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .badge-status {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .badge-status.pending {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-status.valid {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+
+        /* BOUTON FLOTTANT CHAT */
+        .floating-chat {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background-color: #10b981;
+            color: #0f172a;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 30;
+            transition: transform 0.2s;
+        }
+
+        .floating-chat:hover {
+            transform: scale(1.05);
+        }
+
+        /* BOTTOM NAV BAR MOBILE */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #f1f5f9;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 12px;
+            z-index: 20;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #94a3b8;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* FENÊTRES MODALES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;
+            overflow: hidden;
+            animation: fadeInModal 0.3s ease-in-out;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: #f8fafc;
+        }
+
+        /* FORMULAIRES ET GRILLES OPÉRATEURS */
+        .operators-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .op-card {
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .op-card.selected {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
+        }
+
+        .op-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: #10b981;
+            color: #0f172a;
+            border: none;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-submit:hover {
+            background-color: #059669;
+            color: #ffffff;
+        }
+
+        /* CHAT STYLES */
+        .chat-messages-box {
+            flex: 1;
+            height: 320px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            font-size: 12px;
+            border-radius: 12px;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.client {
+            background-color: #10b981;
+            color: #0f172a;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.admin {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            background: #ffffff;
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-send-btn {
+            width: 40px;
+            height: 40px;
+            background-color: #10b981;
+            color: #0f172a;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CONTENEUR UNIQUE PLEIN ÉCRAN / APPLI MOBILE FLUIDE -->
+    <div class="app-container">
+        
+        <!-- TOP APP BAR -->
+        <div class="top-bar">
+            <div class="top-header-row">
+                <div class="logo-box">
+                    <img src="logo.jpeg" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                    <div>
+                        <span class="logo-title">APL<span>IFA</span> GPS</span>
+                        <span class="logo-sub">SL service Moto</span>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <!-- BOUTON DE NOTIFICATIONS -->
+                    <button onclick="ouvrirModalNotifications()" class="notif-btn">
+                        🔔
+                        <span id="badge-notif-clignotant" class="badge-ping" style="display:none;"></span>
+                        <span id="badge-notif-chiffre" class="badge-count" style="display:none;">0</span>
+                    </button>
+                    <div class="network-info">
+                        <span id="firebase-status" class="status-dot" title="Connexion..."></span>
+                        <span>4G</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-welcome-row">
+                <div>
+                    <p>Heureux de vous revoir</p>
+                    <h2 id="client-nom">Chargement...</h2>
+                </div>
+                <div class="user-icon-box">👤</div>
+            </div>
+        </div>
+
+        <!-- BANNIÈRE DE NOTIFICATION ÉLÉGANTE EN HAUT -->
+        <div id="zone-notification" class="notification-banner">
+            <div class="notification-content">
+                <div class="notification-icon">🔔</div>
+                <div>
+                    <span style="font-size: 10px; font-weight: bold; color: #bae6fd; text-transform: uppercase; display: block;">Nouvelle Alerte</span>
+                    <span id="texte-notification">Nouvelle mise à jour concernant votre dossier.</span>
+                </div>
+            </div>
+            <button onclick="fermerNotification()" class="notification-close">✕</button>
+        </div>
+
+        <!-- BANNIÈRE D'ALERTE DE BLOCAGE GPS -->
+        <div id="alerte-blocage" class="alert-block">
+            ⚠️ Accès GPS bloqué : Solde épuisé ou impayé critique. Veuillez régulariser.
+        </div>
+
+        <!-- CONTENU DÉFILABLE DE L'APPLI -->
+        <div class="app-content">
+
+            <!-- CARTE FINANCIÈRE GLOBALE (LES SOLDES) -->
+            <div class="finance-card">
+                <div style="position: absolute; right: -24px; bottom: -24px; width: 120px; height: 120px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; filter: blur(20px); pointer-events: none;"></div>
+                
+                <div class="finance-header">
+                    <span class="finance-title">Suivi du Crédit Moto</span>
+                    <span id="badge-statut-solde" class="status-badge">Actif</span>
+                </div>
+
+                <!-- SOLDE RESTANT -->
+                <div style="margin-top: 12px;">
+                    <span style="font-size: 11px; color: #cbd5e1; font-weight: 500;">Solde Restant à Payer</span>
+                    <h3 id="client-solde" class="solde-amount">0 <span>FC</span></h3>
+                </div>
+
+                <!-- GRILLE : TOTAL & PAYÉ -->
+                <div class="finance-grid">
+                    <div class="finance-sub-box">
+                        <span>Total à Rembourser</span>
+                        <p id="client-total-credit">0 FC</p>
+                    </div>
+                    <div class="finance-sub-box">
+                        <span>Solde Payé</span>
+                        <p id="client-montant-verse" class="green">0 FC</p>
+                    </div>
+                </div>
+
+                <!-- BARRE DE PROGRESSION -->
+                <div class="progress-box">
+                    <div class="progress-labels">
+                        <span>Progression du remboursement</span>
+                        <span id="client-progression-txt">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="client-barre-progression" class="progress-bar-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROCHAINE ÉCHÉANCE & BOUTON PAYER -->
+            <div class="echeance-card">
+                <div>
+                    <div class="echeance-title">⏱️ Prochaine Échéance</div>
+                    <p class="echeance-main">Versements Réguliers</p>
+                    <p class="echeance-sub">Effectuez vos dépôts à temps</p>
+                </div>
+                <button onclick="ouvrirPaiement()" class="btn-payer">Payer</button>
+            </div>
+
+            <!-- BOUTON ACCÈS CARTE GPS -->
+            <div class="map-box">
+                <button id="btn-acceder-map" onclick="accederCarteGPS()" class="btn-map">
+                    🗺️ Voir ma Moto sur la Carte GPS
+                </button>
+            </div>
+
+            <!-- INFOS MOTO ATTRIBUÉE -->
+            <div class="moto-card">
+                <span class="section-label">Ma Moto Attribuée</span>
+                <div class="moto-flex">
+                    <div class="moto-icon">🏍️</div>
+                    <div class="moto-info">
+                        <h4 id="moto-modele">Chargement...</h4>
+                        <p>Plaque : <span id="moto-plaque">--</span></p>
+                        <p style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Châssis : <span id="moto-chassis">--</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORIQUE DES PAIEMENTS -->
+            <div class="payments-card">
+                <div class="payments-header">
+                    <span class="section-label" style="margin-bottom:0;">Mes Transactions & Paiements</span>
+                    <span>Suivi en direct</span>
+                </div>
+                <div id="liste-paiements" class="payments-list">
+                    <div style="padding: 12px; background: #f8fafc; border-radius: 12px; text-align: center; font-size: 12px; color: #94a3b8;">
+                        Chargement de l'historique...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOUTON FLOTTANT CHAT ADMINISTRATEUR -->
+        <button onclick="ouvrirChatAdmin()" class="floating-chat">
+            💬
+        </button>
+
+        <!-- BOTTOM NAV BAR MOBILE -->
+        <div class="bottom-nav">
+            <a href="client.html" class="nav-item">
+                <span>🏠</span>
+                <span>Accueil</span>
+            </a>
+            <a href="profil.html" class="nav-item active">
+                <span>👥</span>
+                <span>suivre</span>
+            </a>
+            <button onclick="changerOngletClient('deconnexion')" class="nav-item">
+                <span>🚪</span>
+                <span>Quitter</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- MODAL HISTORIQUE DE TOUTES LES NOTIFICATIONS -->
+    <div id="modal-notifications" class="modal-overlay">
+        <div class="modal-card" style="height: 75vh;">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; background:rgba(2,132,199,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#38bdf8;">🔔</div>
+                    <div>
+                        <h3 style="font-size: 14px; font-weight:bold;">Notifications</h3>
+                        <span style="font-size:10px; color:#94a3b8;">Historique complet des alertes</span>
+                    </div>
+                </div>
+                <button onclick="fermerModalNotifications()" class="modal-close-btn">✕</button>
+            </div>
+            <div id="liste-toutes-notifications" class="modal-body">
+                <div style="text-align: center; color: #94a3b8; padding: 24px;">Chargement des notifications...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PAIEMENT -->
+    <div id="modal-paiement" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h3 style="font-size: 15px; font-weight:800;">Déclarer un Versement</h3>
+                    <p style="font-size: 11px; color: #94a3b8;">Sélectionnez votre réseau mobile</p>
+                </div>
+                <button onclick="fermerPaiement()" class="modal-close-btn">✕</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Opérateur de Paiement</label>
+                    <div class="operators-grid">
+                        <div onclick="selectionnerOperateur('mpesa')" id="card-mpesa" class="op-card selected">
+                            <div class="op-logo" style="background-color: #dc2626;">M-PESA</div>
+                            <span style="font-size:12px; font-weight:bold; color:#1e293b;">M-Pesa</span>
+                            <span style="font-size:9px; color:#dc2626; font-weight:600;">Vodacom</span>
+                        </div>
+                        <div onclick="selectionnerOperateur('orange')" id="card-orange" class="op-card">
+                            <div class="op-logo" style="background-color: #ff7900;">ORANGE</div>
+                            <span style="font-size:12px; font-weight:bold; color:#1e293b;">Orange</span>
+                            <span style="font-size:9px; color:#ea580c; font-weight:600;">Money</span>
+                        </div>
+                        <div onclick="selectionnerOperateur('airtel')" id="card-airtel" class="op-card">
+                            <div class="op-logo" style="background-color: #ed1b24;">AIRTEL</div>
+                            <span style="font-size:12px; font-weight:bold; color:#1e293b;">Airtel</span>
+                            <span style="font-size:9px; color:#dc2626; font-weight:600;">Money</span>
+                        </div>
+                        <div onclick="selectionnerOperateur('cash')" id="card-cash" class="op-card">
+                            <div class="op-logo" style="background-color: #047857;">CASH</div>
+                            <span style="font-size:12px; font-weight:bold; color:#1e293b;">Espèces</span>
+                            <span style="font-size:9px; color:#059669; font-weight:600;">Au Bureau</span>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="operateur-paiement" value="mpesa">
+
+                <div class="form-group">
+                    <label>Montant versé (FC)</label>
+                    <input type="number" id="montant-paiement" value="25000" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label>ID de Transaction / Reçu</label>
+                    <input type="text" id="id-transaction" placeholder="Ex: MP260403.1245.X12345" class="form-input">
+                </div>
+
+                <button onclick="validerPaiementClient()" class="btn-submit">
+                    Soumettre pour Validation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHAT AVEC L'ADMINISTRATEUR -->
+    <div id="modal-chat" class="modal-overlay">
+        <div class="modal-card" style="height: 80vh;">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:36px; height:36px; background:rgba(16,185,129,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#10b981;">💬</div>
+                    <div>
+                        <h3 style="font-size: 14px; font-weight:bold;">Support APLIFA</h3>
+                        <span style="font-size:10px; color:#34d399; font-weight:500;">En ligne avec l'Admin</span>
+                    </div>
+                </div>
+                <button onclick="fermerChatAdmin()" class="modal-close-btn">✕</button>
+            </div>
+
+            <div class="modal-body" style="background:#f8fafc; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                <div id="chat-messages" class="chat-messages-box">
+                    <div style="text-align: center; color: #94a3b8; padding: 20px;">Chargement de la conversation...</div>
+                </div>
+
+                <div class="chat-input-row">
+                    <input type="text" id="input-message-chat" placeholder="Écrivez votre message..." class="form-input" style="border:none; background:transparent; padding:8px 12px;">
+                    <button onclick="envoyerMessageAdmin()" class="chat-send-btn">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT FIREBASE & LOGIQUE INTERNE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxtMLS_VyhSVSooqJCDjUQShgSgSPTdXo",
+            authDomain: "suivi-gps-48811.firebaseapp.com",
+            projectId: "suivi-gps-48811",
+            storageBucket: "suivi-gps-48811.firebasestorage.app",
+            messagingSenderId: "147934111832",
+            appId: "1:147934111832:web:42a5f278d0636c17f4c22d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const statusBadge = document.getElementById('firebase-status');
+        statusBadge.style.backgroundColor = "#10b981";
+        statusBadge.title = "Connecté à Firebase";
+
+        const telephoneConnecte = localStorage.getItem('clientTel') ? localStorage.getItem('clientTel').trim() : "";
+
+        if (!telephoneConnecte) {
+            alert("Session expirée ou non connectée.");
+            window.location.href = "index.html";
+        } else {
+            // 1. Chargement des données de crédit & soldes
+            const qCredit = query(collection(db, "credits"), where("telephone", "==", telephoneConnecte));
+            
+            onSnapshot(qCredit, (snapCredit) => {
+                if (snapCredit.empty) return;
+
+                let nomClient = "Conducteur APLIFA";
+                let totalCredit = 0;
+                let montantVersé = 0;
+
+                snapCredit.forEach((doc) => {
+                    const data = doc.data();
+                    if(data.nomClient) nomClient = data.nomClient;
+                    
+                    if(data.totalRembourser !== undefined) {
+                        totalCredit = Number(data.totalRembourser);
+                    } else if(data.totalCredit !== undefined) {
+                        totalCredit = Number(data.totalCredit);
+                    }
+
+                    if(data.montantVersé !== undefined) {
+                        montantVersé = Number(data.montantVersé);
+                    } else if(data.montantVerse !== undefined) {
+                        montantVersé = Number(data.montantVerse);
+                    }
+                });
+
+                document.getElementById('client-nom').innerText = nomClient;
+
+                let soldeRestant = Math.max(0, totalCredit - montantVersé);
+                let pourcentage = totalCredit > 0 ? Math.min(100, Math.max(0, Math.round((montantVersé / totalCredit) * 100))) : 0;
+
+                document.getElementById('client-solde').innerHTML = soldeRestant.toLocaleString() + ' <span>FC</span>';
+                document.getElementById('client-total-credit').innerText = totalCredit.toLocaleString() + ' FC';
+                document.getElementById('client-montant-verse').innerText = montantVersé.toLocaleString() + ' FC';
+                document.getElementById('client-progression-txt').innerText = pourcentage + '%';
+                document.getElementById('client-barre-progression').style.width = pourcentage + '%';
+
+                const boutonMap = document.getElementById('btn-acceder-map');
+                const alerteBlocage = document.getElementById('alerte-blocage');
+                const badgeStatutSolde = document.getElementById('badge-statut-solde');
+
+                if (totalCredit > 0 && soldeRestant <= 0) {
+                    boutonMap.className = "btn-map disabled";
+                    alerteBlocage.style.display = "block";
+                    badgeStatutSolde.className = "status-badge closed";
+                    badgeStatutSolde.innerText = "Soldé / Clôturé";
+                } else {
+                    alerteBlocage.style.display = "none";
+                    badgeStatutSolde.className = "status-badge";
+                    badgeStatutSolde.innerText = "Actif";
+                }
+            });
+
+            // 2. Chargement des informations de la moto attribuée
+            const qMoto = query(collection(db, "motos"), where("telephone", "==", telephoneConnecte));
+            onSnapshot(qMoto, (motosSnapshot) => {
+                if(!motosSnapshot.empty) {
+                    motosSnapshot.forEach((doc) => {
+                        const moto = doc.data();
+                        document.getElementById('moto-modele').innerText = moto.modele || moto.marque || "Haojue 125cc";
+                        document.getElementById('moto-plaque').innerText = moto.plaque || "En attente";
+                        document.getElementById('moto-chassis').innerText = moto.chassis || moto.numeroChassis || "--";
+                    });
+                } else {
+                    const qMotoAlt = query(collection(db, "motos"), where("clientTel", "==", telephoneConnecte));
+                    onSnapshot(qMotoAlt, (snapAlt) => {
+                        if(!snapAlt.empty) {
+                            snapAlt.forEach((doc) => {
+                                const moto = doc.data();
+                                document.getElementById('moto-modele').innerText = moto.modele || moto.marque || "Haojue 125cc";
+                                document.getElementById('moto-plaque').innerText = moto.plaque || "En attente";
+                                document.getElementById('moto-chassis').innerText = moto.chassis || moto.numeroChassis || "--";
+                            });
+                        } else {
+                            document.getElementById('moto-modele').innerText = "Aucune moto liée";
+                            document.getElementById('moto-plaque').innerText = "Non attribuée";
+                            document.getElementById('moto-chassis').innerText = "--";
+                        }
+                    });
+                }
+            });
+
+            // 3. Chargement de l'historique des paiements
+            const qPaiements = query(collection(db, "paiements"), where("telephone", "==", telephoneConnecte));
+            onSnapshot(qPaiements, (snapPaiements) => {
+                const listePaiementsDiv = document.getElementById('liste-paiements');
+                if(!snapPaiements.empty) {
+                    listePaiementsDiv.innerHTML = "";
+                    snapPaiements.forEach((docP) => {
+                        const p = docP.data();
+                        let badgeStatut = `<span class="badge-status pending">En attente</span>`;
+                        if(p.statut === "valide" || p.statut === "validé") {
+                            badgeStatut = `<span class="badge-status valid">Validé</span>`;
+                        }
+                        listePaiementsDiv.innerHTML += `
+                            <div class="payment-item">
+                                <div>
+                                    <p>${Number(p.montant).toLocaleString()} FC (${p.operateur.toUpperCase()})</p>
+                                    <span class="sub">ID: ${p.idTransaction || 'N/A'} - ${p.date || '--'}</span>
+                                </div>
+                                ${badgeStatut}
+                            </div>
+                        `;
+                    });
+                } else {
+                    listePaiementsDiv.innerHTML = `<div style="padding: 12px; background: #f8fafc; border-radius: 12px; text-align: center; font-size: 12px; color: #94a3b8;">Aucun paiement enregistré pour le moment.</div>`;
+                }
+            });
+
+            // 4. Gestion dynamique des notifications
+            const qNotifs = query(collection(db, "notifications"), where("telephone", "==", telephoneConnecte));
+            onSnapshot(qNotifs, (snapshot) => {
+                const zoneNotif = document.getElementById('zone-notification');
+                const texteNotif = document.getElementById('texte-notification');
+                const listeToutesNotifs = document.getElementById('liste-toutes-notifications');
+                const badgeClignotant = document.getElementById('badge-notif-clignotant');
+                const badgeChiffre = document.getElementById('badge-notif-chiffre');
+
+                if (!snapshot.empty) {
+                    let dernierMsg = "";
+                    let notificationsArray = [];
+                    let totalNotifsActuelles = snapshot.size;
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        notificationsArray.push(data);
+                        if(data.message) dernierMsg = data.message;
+                    });
+
+                    let dernierNombreLu = Number(localStorage.getItem('derniereNotificationLue_' + telephoneConnecte) || 0);
+
+                    if (totalNotifsActuelles > dernierNombreLu) {
+                        badgeClignotant.style.display = "block";
+                        badgeChiffre.innerText = totalNotifsActuelles - dernierNombreLu;
+                        badgeChiffre.style.display = "flex";
+
+                        if(dernierMsg) {
+                            texteNotif.innerText = dernierMsg;
+                            zoneNotif.style.display = "flex";
+                        }
+                    } else {
+                        badgeClignotant.style.display = "none";
+                        badgeChiffre.style.display = "none";
+                    }
+
+                    listeToutesNotifs.innerHTML = "";
+                    notificationsArray.reverse().forEach(n => {
+                        listeToutesNotifs.innerHTML += `
+                            <div style="padding: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; display: flex; align-items: flex-start; gap: 12px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px;">🔔</div>
+                                <div style="flex: 1;">
+                                    <p style="font-weight: 600; color: #1e293b; font-size: 12px;">${n.message || 'Mise à jour du dossier'}</p>
+                                    <span style="font-size: 10px; color: #94a3b8; display: block; margin-top: 4px;">🕒 ${n.date || 'Récemment'}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    listeToutesNotifs.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 24px;">Aucune notification pour le moment.</div>`;
+                    badgeClignotant.style.display = "none";
+                    badgeChiffre.style.display = "none";
+                }
+            });
+        }
+
+        window.fermerNotification = function() {
+            document.getElementById('zone-notification').style.display = 'none';
+        }
+
+        window.ouvrirModalNotifications = function() {
+            document.getElementById('modal-notifications').style.display = 'flex';
+            document.getElementById('badge-notif-clignotant').style.display = 'none';
+            document.getElementById('badge-notif-chiffre').style.display = 'none';
+
+            const qNotifsTemp = query(collection(db, "notifications"), where("telephone", "==", telephoneConnecte));
+            onSnapshot(qNotifsTemp, (snapshot) => {
+                localStorage.setItem('derniereNotificationLue_' + telephoneConnecte, snapshot.size);
+            }, { once: true });
+        }
+
+        window.fermerModalNotifications = function() {
+            document.getElementById('modal-notifications').style.display = 'none';
+        }
+
+        window.ouvrirChatAdmin = function() {
+            document.getElementById('modal-chat').style.display = 'flex';
+            chargerMessagesChat();
+        }
+
+        window.fermerChatAdmin = function() {
+            document.getElementById('modal-chat').style.display = 'none';
+        }
+
+        function chargerMessagesChat() {
+            const qChat = query(collection(db, "chats"), where("telephone", "==", telephoneConnecte));
+            onSnapshot(qChat, (snapshot) => {
+                const conteneurMsg = document.getElementById('chat-messages');
+                conteneurMsg.innerHTML = "";
+                if(snapshot.empty) {
+                    conteneurMsg.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px;">Aucun message. Envoyez un message au support.</div>`;
+                    return;
+                }
+                
+                let messages = [];
+                snapshot.forEach(doc => messages.push(doc.data()));
+                messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                messages.forEach(msg => {
+                    const estClient = msg.emetteur === "client";
+                    const classeStyle = estClient ? "chat-bubble client" : "chat-bubble admin";
+                    
+                    conteneurMsg.innerHTML += `
+                        <div class="${classeStyle}">
+                            <p style="font-weight: 600;">${msg.texte}</p>
+                            <span style="font-size: 9px; opacity: 0.7; display: block; margin-top: 4px; text-align: right;">${msg.date || ''}</span>
+                        </div>
+                    `;
+                });
+                conteneurMsg.scrollTop = conteneurMsg.scrollHeight;
+            });
+        }
+
+        window.envoyerMessageAdmin = async function() {
+            const input = document.getElementById('input-message-chat');
+            const texte = input.value.trim();
+            if(!texte) return;
+
+            try {
+                await addDoc(collection(db, "chats"), {
+                    telephone: telephoneConnecte,
+                    emetteur: "client",
+                    texte: texte,
+                    date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: Date.now()
+                });
+                input.value = "";
+            } catch(e) {
+                alert("Erreur d'envoi : " + e.message);
+            }
+        }
+
+        window.selectionnerOperateur = function(op) {
+            document.getElementById('operateur-paiement').value = op;
+            const cartes = ['mpesa', 'orange', 'airtel', 'cash'];
+            cartes.forEach(item => {
+                const el = document.getElementById('card-' + item);
+                if(item === op) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            });
+        }
+
+        window.ouvrirPaiement = function() {
+            document.getElementById('modal-paiement').style.display = 'flex';
+        }
+
+        window.fermerPaiement = function() {
+            document.getElementById('modal-paiement').style.display = 'none';
+        }
+
+        window.validerPaiementClient = async function() {
+            const montant = document.getElementById('montant-paiement').value;
+            const operateur = document.getElementById('operateur-paiement').value;
+            const idTransaction = document.getElementById('id-transaction').value.trim();
+            if(!idTransaction) { alert("Veuillez entrer l'ID de la transaction."); return; }
+            try {
+                await addDoc(collection(db, "paiements"), {
+                    telephone: telephoneConnecte,
+                    montant: Number(montant),
+                    operateur: operateur,
+                    idTransaction: idTransaction,
+                    date: new Date().toLocaleDateString(),
+                    statut: "en_attente"
+                });
+                fermerPaiement();
+                alert("Demande de paiement soumise avec succès !");
+            } catch(e) { alert("Erreur : " + e.message); }
+        }
+
+        window.accederCarteGPS = function() {
+            window.location.href = "client.html";
+        }
+
+        window.changerOngletClient = function(onglet) {
+            if(onglet === 'deconnexion') {
+                localStorage.removeItem('clientTel');
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+</body>
+</html>
