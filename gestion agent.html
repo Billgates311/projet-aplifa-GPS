@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APLIFA | Gestion Avancée des Agents (KYC & Code d'Accès)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',
+                        accent: '#10b981',
+                        bggray: '#f8fafc',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .fade-in { animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-bggray text-slate-800 antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR ADMIN -->
+        <aside class="w-64 bg-primary text-slate-200 flex flex-col shadow-xl flex-shrink-0">
+            <div class="p-6 flex items-center space-x-3 border-b border-slate-800/50">
+                <div class="bg-indigo-600 text-white w-10 h-10 flex items-center justify-center rounded-2xl font-bold text-xl shadow-lg">A</div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tighter text-white">APLIFA<span class="text-indigo-400">.</span></span>
+                    <p class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">Administration</p>
+                </div>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <a href="#" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-slate-800 text-white font-medium transition">
+                    <i class="fa-solid fa-users-gear w-5 text-indigo-400"></i>
+                    <span>Gestion des Agents (KYC)</span>
+                </a>
+                <a href="admin_3.html" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-arrow-left w-5 text-slate-400"></i>
+                    <span>Retour Dashboard Admin</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800/50 mt-auto">
+                <div class="bg-slate-800/80 p-3 rounded-xl flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">AD</div>
+                    <div>
+                        <p class="font-semibold text-white text-xs">Administrateur</p>
+                        <p class="text-[10px] text-emerald-400 font-medium">Superviseur</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- TOPNAV -->
+            <header class="bg-white border-b border-slate-100 h-16 flex items-center justify-between px-8 shadow-sm sticky top-0 z-10 flex-shrink-0">
+                <h1 class="text-xl font-bold text-slate-900">Dossiers KYC & Codes d'Accès Agents</h1>
+                <div class="flex items-center space-x-4">
+                    <div id="firebase-status" class="flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+                        <span class="w-2 h-2 mr-1.5 bg-amber-400 rounded-full animate-pulse"></span> Connexion Firebase...
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW CONTAINER -->
+            <main class="flex-1 p-6 overflow-y-auto space-y-6">
+
+                <!-- HEADER ACTIONS & STATS -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Registre du Personnel & Sécurité</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Générez les codes d'accès uniques pour l'activation des profils mobiles des agents.</p>
+                    </div>
+                    <button onclick="ouvrirModalAgent()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition shadow-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Enregistrer un Agent (KYC)</span>
+                    </button>
+                </div>
+
+                <!-- TABLEAU DES AGENTS -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase bg-slate-50/50">
+                                <tr>
+                                    <th class="p-5">Agent / Identité</th>
+                                    <th class="p-5">Code d'Accès 1ère Connexion</th>
+                                    <th class="p-5">Pièce d'Identité (KYC)</th>
+                                    <th class="p-5">Zone / Secteur</th>
+                                    <th class="p-5">Statut</th>
+                                    <th class="p-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agents-table-body" class="divide-y divide-slate-100 text-sm">
+                                <tr><td colspan="6" class="p-8 text-center text-slate-400">Chargement des agents...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL : FORMULAIRE KYC COMPLET + CODE D'ACCÈS -->
+    <div id="modal-agent" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3 sticky top-0 bg-white z-10">
+                <h3 id="modal-agent-title" class="font-bold text-lg text-slate-900">Dossier KYC - Nouvel Agent</h3>
+                <button onclick="fermerModalAgent()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <form id="form-agent" class="space-y-6">
+                <input type="hidden" id="agent-id">
+
+                <!-- SECTION 0 : Code d'Accès Unique -->
+                <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-bold text-indigo-900 uppercase tracking-wider">Code d'Accès Unique (Première Connexion)</label>
+                        <button type="button" onclick="genererCodeAleatoire()" class="text-xs bg-indigo-600 text-white px-2.5 py-1 rounded-lg hover:bg-indigo-700 transition">Générer un code</button>
+                    </div>
+                    <input type="text" id="agent-code-acces" required placeholder="Ex: APLIFA-9842" class="w-full px-4 py-2.5 bg-white border border-indigo-200 rounded-xl text-sm font-mono font-bold text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-[11px] text-indigo-500">L'agent entrera ce code sur son application mobile pour lier et synchroniser son profil automatiquement.</p>
+                </div>
+
+                <!-- SECTION 1 : Identité Civile -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider">1. Informations Personnelles</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nom</label>
+                            <input type="text" id="agent-nom" required placeholder="Ex: Ntimansiemi" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Prénom & Post-nom</label>
+                            <input type="text" id="agent-prenom" required placeholder="Ex: Billgates" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Téléphone Principal</label>
+                            <input type="tel" id="agent-tel" required placeholder="Ex: +243810000000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Date de Naissance</label>
+                            <input type="date" id="agent-naissance" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2 : Documents d'Identité (KYC) -->
+                <div class="space-y-4 pt-2 border-t border-slate-100">
+                    <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider">2. Pièce d'Identité & Vérification</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Type de Pièce</label>
+                            <select id="agent-type-piece" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Carte d'Identité Nationale">Carte d'Identité Nationale</option>
+                                <option value="Passeport">Passeport</option>
+                                <option value="Permis de Conduire">Permis de Conduire</option>
+                                <option value="Carte d'Électeur">Carte d'Électeur</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Numéro de la Pièce</label>
+                            <input type="text" id="agent-num-piece" required placeholder="Ex: N° 109283749" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3 : Adresse & Localisation -->
+                <div class="space-y-4 pt-2 border-t border-slate-100">
+                    <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider">3. Adresse Résidentielle & Affectation</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Adresse Physique / Quartier</label>
+                            <input type="text" id="agent-adresse" required placeholder="Ex: Av. Kasa-Vubu N°12, Mbanza-Ngungu" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Zone / Secteur d'Activité</label>
+                            <input type="text" id="agent-zone" required placeholder="Ex: Kwilu-Ngongo / Centre" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4 : Référence / Garant de l'Agent -->
+                <div class="space-y-4 pt-2 border-t border-slate-100">
+                    <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider">4. Personne de Référence / Garant</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nom du Garant</label>
+                            <input type="text" id="agent-garant-nom" placeholder="Ex: Mumbundu Paul" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Téléphone du Garant</label>
+                            <input type="tel" id="agent-garant-tel" placeholder="Ex: +243..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5 : Statut du Compte -->
+                <div class="space-y-4 pt-2 border-t border-slate-100">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Statut Administratif du Compte</label>
+                        <select id="agent-statut" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Actif">Actif</option>
+                            <option value="En attente de validation">En attente de validation KYC</option>
+                            <option value="Suspendu">Suspendu</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="fermerModalAgent()" class="px-5 py-2.5 border rounded-xl text-sm font-medium">Annuler</button>
+                    <button type="submit" id="btn-save-agent" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition shadow-md">Enregistrer le Dossier KYC</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NOTIFICATION -->
+    <div id="notification-modal" class="fixed bottom-6 right-6 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl hidden items-center space-x-4 z-50 transition-all border border-slate-700">
+        <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-bell"></i>
+        </div>
+        <div>
+            <p class="text-xs text-slate-400 font-semibold uppercase">Information</p>
+            <p id="notification-text" class="text-sm font-bold text-white"></p>
+        </div>
+    </div>
+
+    <!-- FIREBASE & LOGIQUE SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxtMLS_VyhSVSooqJCDjUQShgSgSPTdXo",
+            authDomain: "suivi-gps-48811.firebaseapp.com",
+            projectId: "suivi-gps-48811",
+            storageBucket: "suivi-gps-48811.firebasestorage.app",
+            messagingSenderId: "147934111832",
+            appId: "1:147934111832:web:42a5f278d0636c17f4c22d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const statusBadge = document.getElementById('firebase-status');
+        statusBadge.className = "flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100";
+        statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full"></span> Firebase Connecté`;
+
+        function afficherNotification(texte) {
+            const modalNotif = document.getElementById('notification-modal');
+            const texteNotif = document.getElementById('notification-text');
+            texteNotif.innerText = texte;
+            modalNotif.classList.remove('hidden');
+            modalNotif.classList.add('flex');
+            setTimeout(() => {
+                modalNotif.classList.remove('flex');
+                modalNotif.classList.add('hidden');
+            }, 4000);
+        }
+
+        // Fonction pour générer un code d'accès aléatoire sécurisé
+        window.genererCodeAleatoire = function() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let code = "AP-";
+            for (let i = 0; i < 5; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('agent-code-acces').value = code;
+        }
+
+        window.ouvrirModalAgent = function(id = '', codeAcces = '', nom = '', prenom = '', telephone = '', naissance = '', typePiece = '', numPiece = '', adresse = '', zone = '', garantNom = '', garantTel = '', statut = 'Actif') {
+            document.getElementById('agent-id').value = id;
+            document.getElementById('agent-code-acces').value = codeAcces || ('AP-' + Math.floor(1000 + Math.random() * 9000));
+            document.getElementById('agent-nom').value = nom;
+            document.getElementById('agent-prenom').value = prenom;
+            document.getElementById('agent-tel').value = telephone;
+            document.getElementById('agent-naissance').value = naissance;
+            document.getElementById('agent-type-piece').value = typePiece || "Carte d'Identité Nationale";
+            document.getElementById('agent-num-piece').value = numPiece;
+            document.getElementById('agent-adresse').value = adresse;
+            document.getElementById('agent-zone').value = zone;
+            document.getElementById('agent-garant-nom').value = garantNom;
+            document.getElementById('agent-garant-tel').value = garantTel;
+            document.getElementById('agent-statut').value = statut;
+            document.getElementById('modal-agent-title').innerText = id ? "Modifier le Dossier KYC de l'Agent" : "Dossier KYC - Nouvel Agent";
+            
+            const modal = document.getElementById('modal-agent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        window.fermerModalAgent = function() {
+            const modal = document.getElementById('modal-agent');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Charger la liste des agents depuis Firestore
+        async function chargerAgents() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "agents_kyc"));
+                const tbody = document.getElementById('agents-table-body');
+                tbody.innerHTML = "";
+                let count = 0;
+
+                querySnapshot.forEach((d) => {
+                    count++;
+                    const ag = d.data();
+                    const id = d.id;
+                    let badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-100";
+                    if(ag.statut === "Suspendu") badgeColor = "bg-rose-50 text-rose-700 border border-rose-100";
+                    if(ag.statut === "En attente de validation") badgeColor = "bg-amber-50 text-amber-700 border border-amber-100";
+
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                            <td class="p-4">
+                                <span class="font-bold text-slate-900 block">${ag.nom} ${ag.prenom}</span>
+                                <span class="text-xs text-slate-400">Tél : ${ag.telephone}</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-xl text-xs font-mono font-bold border border-indigo-100 tracking-wider">${ag.codeAcces || 'Non défini'}</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="text-xs font-semibold text-slate-700 block">${ag.typePiece || 'Pièce'}</span>
+                                <span class="text-xs text-slate-400 font-mono">${ag.numPiece || 'N/A'}</span>
+                            </td>
+                            <td class="p-4 text-slate-600">
+                                <span class="bg-slate-100 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700">${ag.zone || 'Non définie'}</span>
+                            </td>
+                            <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-medium ${badgeColor}">${ag.statut || 'Actif'}</span></td>
+                            <td class="p-4 text-right space-x-2">
+                                <button onclick="ouvrirModalAgent('${id}', '${ag.codeAcces || ''}', '${ag.nom}', '${ag.prenom}', '${ag.telephone}', '${ag.naissance}', '${ag.typePiece}', '${ag.numPiece}', '${ag.adresse}', '${ag.zone}', '${ag.garantNom}', '${ag.garantTel}', '${ag.statut}')" class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 transition inline-flex items-center justify-center" title="Modifier le KYC">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="supprimerAgent('${id}')" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition inline-flex items-center justify-center" title="Supprimer">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                if(count === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Aucun dossier agent KYC enregistré pour le moment.</td></tr>`;
+                }
+            } catch(err) {
+                console.error("Erreur de chargement :", err);
+            }
+        }
+
+        // Ajouter ou Modifier un Agent avec Code d'Accès et KYC
+        document.getElementById('form-agent').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('agent-id').value;
+            const dataAgent = {
+                codeAcces: document.getElementById('agent-code-acces').value,
+                nom: document.getElementById('agent-nom').value,
+                prenom: document.getElementById('agent-prenom').value,
+                telephone: document.getElementById('agent-tel').value,
+                naissance: document.getElementById('agent-naissance').value,
+                typePiece: document.getElementById('agent-type-piece').value,
+                numPiece: document.getElementById('agent-num-piece').value,
+                adresse: document.getElementById('agent-adresse').value,
+                zone: document.getElementById('agent-zone').value,
+                garantNom: document.getElementById('agent-garant-nom').value,
+                garantTel: document.getElementById('agent-garant-tel').value,
+                statut: document.getElementById('agent-statut').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                if(id) {
+                    await updateDoc(doc(db, "agents_kyc", id), dataAgent);
+                    afficherNotification("Dossier KYC et code d'accès mis à jour !");
+                } else {
+                    dataAgent.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, "agents_kyc"), dataAgent);
+                    afficherNotification("Nouvel agent enregistré avec son code d'accès !");
+                }
+                fermerModalAgent();
+                chargerAgents();
+            } catch(err) {
+                alert("Erreur : " + err.message);
+            }
+        });
+
+        // Supprimer un agent
+        window.supprimerAgent = async function(id) {
+            if(confirm("Voulez-vous vraiment supprimer ce dossier agent ?")) {
+                try {
+                    await deleteDoc(doc(db, "agents_kyc", id));
+                    afficherNotification("Dossier supprimé avec succès.");
+                    chargerAgents();
+                } catch(err) {
+                    alert("Erreur lors de la suppression : " + err.message);
+                }
+            }
+        }
+
+        // Charger au démarrage
+        chargerAgents();
+    </script>
+</body>
+</html>

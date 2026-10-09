@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APLIFA | Back-Office & Espace Agent</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',
+                        accent: '#10b981',
+                        bggray: '#f8fafc',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Styles globaux & animations */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .fade-in { animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Animation de clignotement pour l'onglet chat */
+        @keyframes customBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.03); }
+        }
+        .animate-blink-tab {
+            animation: customBlink 1.2s infinite ease-in-out;
+        }
+
+        /* Scrollbars personnalisées pour plus de propreté */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-bggray text-slate-800 antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-primary text-slate-200 flex flex-col shadow-xl flex-shrink-0">
+            <div class="p-6 flex items-center space-x-3 border-b border-slate-800/50">
+                <div class="bg-accent text-primary w-10 h-10 flex items-center justify-center rounded-2xl font-bold text-xl shadow-lg">A</div>
+                <span class="text-2xl font-extrabold tracking-tighter text-white">APLIFA<span class="text-accent">.</span></span>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-slate-800 text-white font-medium transition">
+                    <i class="fa-solid fa-chart-pie w-5 text-accent"></i>
+                    <span>Tableau de Bord</span>
+                </button>
+                <a href="agent.html" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-mobile-screen-button w-5 text-sky-400"></i>
+                    <span>Espace Agent / Vente</span>
+                </a>
+                <button onclick="switchTab('motos')" id="nav-motos" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-motorcycle w-5"></i>
+                    <span>Gestion des Stocks</span>
+                </button>
+                <button onclick="switchTab('clients')" id="nav-clients" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-address-book w-5 text-sky-400"></i>
+                    <span>Nos Clients</span>
+                </button>
+                <button onclick="switchTab('paiements')" id="nav-paiements" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-money-bill-transfer w-5 text-emerald-400"></i>
+                    <span>Validation Paiements</span>
+                </button>
+                <button onclick="switchTab('suivi-clients')" id="nav-suivi-clients" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-users-rectangle w-5 text-emerald-400"></i>
+                    <span>Suivi & Impayés Clients</span>
+                </button>
+                <button onclick="switchTab('chat')" id="nav-chat" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition relative">
+                    <i class="fa-solid fa-headset w-5 text-amber-400"></i>
+                    <span>Chat Service Client</span>
+                </button>
+                <button onclick="switchTab('notifications')" id="nav-notifications" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-paper-plane w-5 text-purple-400"></i>
+                    <span>Diffuser Notifications</span>
+                </button>
+                <button onclick="switchTab('acomptes-agents')" id="nav-acomptes-agents" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition">
+                    <i class="fa-solid fa-hand-holding-dollar w-5 text-amber-400"></i>
+                    <span>Acomptes Agents</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800/50 mt-auto">
+                <div class="bg-slate-800/80 p-3 rounded-xl flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold text-sm">AG</div>
+                    <div>
+                        <p class="font-semibold text-white text-xs">Mode Admin & Agent</p>
+                        <p class="text-[10px] text-emerald-400 font-medium">Actif en ligne</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- TOPNAV -->
+            <header class="bg-white border-b border-slate-100 h-16 flex items-center justify-between px-8 shadow-sm sticky top-0 z-10 flex-shrink-0">
+                <h1 id="page-title" class="text-xl font-bold text-slate-900">Tableau de Bord</h1>
+                <div class="flex items-center space-x-4">
+                    <div id="firebase-status" class="flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+                        <span class="w-2 h-2 mr-1.5 bg-amber-400 rounded-full animate-pulse"></span> Connexion Firebase...
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW CONTAINER -->
+            <main class="flex-1 p-6 overflow-y-auto space-y-6">
+
+                <!-- 1. TAB TABLEAU DE BORD -->
+                <div id="tab-dashboard" class="fade-in space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-400 uppercase">Encaissements du jour</span>
+                            <div id="kpi-encaissements" class="text-3xl font-bold text-slate-900 mt-2">0 <span class="text-sm font-normal text-slate-500">FC</span></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-400 uppercase">Impayés estimés</span>
+                            <div id="kpi-impayes" class="text-3xl font-bold text-rose-600 mt-2">0 <span class="text-sm font-normal text-slate-500">FC</span></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-400 uppercase">Motos sur le terrain</span>
+                            <div id="kpi-motos" class="text-3xl font-bold text-slate-900 mt-2">0</div>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-400 uppercase">Total Clients</span>
+                            <div id="kpi-total-clients" class="text-3xl font-bold text-slate-900 mt-2">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB : NOS CLIENTS -->
+                <div id="tab-clients" class="hidden fade-in space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Base de Données - Nos Clients</h2>
+                            <p class="text-xs text-slate-500 mt-1">Consultez la liste de tous les clients enregistrés.</p>
+                        </div>
+                        <div class="relative w-full sm:w-80">
+                            <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                            <input type="text" id="search-db-clients" oninput="filtrerClientsDB()" placeholder="Rechercher par nom, téléphone..." class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent shadow-sm">
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase bg-slate-50/50">
+                                <tr>
+                                    <th class="p-5">Nom Complet</th>
+                                    <th class="p-5">Contact</th>
+                                    <th class="p-5">Moto / Véhicule</th>
+                                    <th class="p-5">Statut Dossier</th>
+                                    <th class="p-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-db-table-body" class="divide-y divide-slate-100 text-sm">
+                                <tr><td colspan="5" class="p-8 text-center text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB : VALIDATION DES PAIEMENTS -->
+                <div id="tab-paiements" class="hidden fade-in space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Validation des Paiements & Versements</h2>
+                        <p class="text-xs text-slate-500 mt-1">Validez ou modifiez les transactions soumises par les clients.</p>
+                    </div>
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase bg-slate-50/50">
+                                <tr>
+                                    <th class="p-5">Téléphone Client</th>
+                                    <th class="p-5">Opérateur / Montant</th>
+                                    <th class="p-5">ID Transaction / Reçu</th>
+                                    <th class="p-5">Date</th>
+                                    <th class="p-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paiements-table-body" class="divide-y divide-slate-100 text-sm">
+                                <tr><td colspan="5" class="p-8 text-center text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB SUIVI & IMPAYÉS CLIENTS -->
+                <div id="tab-suivi-clients" class="hidden fade-in space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Suivi Global des Clients & Impayés</h2>
+                            <p class="text-xs text-slate-500 mt-1">Recherchez un client et suivez son crédit total.</p>
+                        </div>
+                        <div class="flex items-center space-x-3 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-72">
+                                <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                                <input type="text" id="search-client" oninput="filtrerClientsSuivi()" placeholder="Rechercher nom ou numéro..." class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase bg-slate-50/50">
+                                <tr>
+                                    <th class="p-5">Client & Contact</th>
+                                    <th class="p-5">Crédit Total</th>
+                                    <th class="p-5">Déjà Payé</th>
+                                    <th class="p-5">Montant Restant Dû</th>
+                                    <th class="p-5">Mois Restant</th>
+                                    <th class="p-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suivi-clients-table-body" class="divide-y divide-slate-100 text-sm">
+                                <tr><td colspan="6" class="p-8 text-center text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB STOCKS MOTOS -->
+                <div id="tab-motos" class="hidden fade-in space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-900">Parc de Motos</h2>
+                        <button onclick="openModal('moto-modal')" class="bg-primary hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition">Ajouter Moto</button>
+                    </div>
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                <tr>
+                                    <th class="p-5">Châssis / Plaque</th>
+                                    <th class="p-5">Modèle</th>
+                                    <th class="p-5">Prix Crédit</th>
+                                    <th class="p-5">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="motos-table-body" class="divide-y divide-slate-100 text-sm">
+                                <tr><td colspan="4" class="p-8 text-center text-slate-400">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ONGLET : CHAT SERVICE CLIENT -->
+                <div id="tab-chat" class="hidden fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-3 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden h-[calc(100vh-140px)]">
+                        <!-- Liste des conversations -->
+                        <div class="border-r border-slate-100 flex flex-col h-full bg-slate-50/50">
+                            <div class="p-4 border-b border-slate-100 bg-white space-y-3">
+                                <span class="text-xs font-bold text-slate-400 uppercase block">Boîte de réception</span>
+                                <div class="relative">
+                                    <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                                    <input type="text" id="search-chat-clients" oninput="filtrerClientsChatList()" placeholder="Filtrer une discussion..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-accent">
+                                </div>
+                            </div>
+                            <div id="chat-clients-list" class="flex-1 overflow-y-auto divide-y divide-slate-100">
+                                <div class="p-4 text-center text-slate-400 text-sm">Chargement...</div>
+                            </div>
+                        </div>
+                        <!-- Fenêtre active -->
+                        <div class="md:col-span-2 flex flex-col h-full bg-white">
+                            <div id="chat-header" class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/30 flex-shrink-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <h3 id="active-chat-name" class="font-bold text-slate-900 text-sm">Sélectionnez un client</h3>
+                                        <p id="active-chat-phone" class="text-xs text-slate-400">--</p>
+                                    </div>
+                                </div>
+                                <div id="active-chat-action-container" class="hidden">
+                                    <button type="button" id="btn-open-client-from-chat" onclick="" class="px-3 py-1.5 bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 shadow-sm">
+                                        <i class="fa-solid fa-id-card"></i>
+                                        <span>Fiche Client</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Corps des messages -->
+                            <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/20 flex flex-col">
+                                <div class="m-auto text-center text-slate-400 text-sm">Choisissez un client dans la boîte de réception pour afficher la discussion.</div>
+                            </div>
+                            <!-- Formulaire d'envoi épuré (1 seul bouton et espace de rédaction) -->
+                            <form id="admin-chat-form" class="p-4 border-t border-slate-100 flex items-center space-x-2 bg-white flex-shrink-0">
+                                <input type="hidden" id="active-chat-client-id">
+                                <input type="hidden" id="active-chat-client-tel">
+                                <input type="text" id="admin-chat-input" placeholder="Écrivez votre réponse au client..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent" disabled required>
+                                <button type="submit" id="admin-chat-send-btn" class="px-5 py-3 bg-accent text-primary font-bold rounded-xl text-sm transition shadow-sm disabled:opacity-50 flex items-center justify-center" disabled>
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ONGLET : DIFFUSION DE NOTIFICATIONS -->
+                <div id="tab-notifications" class="hidden fade-in space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Diffusion de Notifications par Filtre</h2>
+                        <p class="text-xs text-slate-500 mt-1">Envoyez une annonce ou un rappel ciblés.</p>
+                    </div>
+
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6 max-w-3xl">
+                        <form id="broadcast-form" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">1. Sélectionner le public cible (Filtre)</label>
+                                <select id="broadcast-filter" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent font-semibold text-slate-800" onchange="mettreAJourCompteCible()">
+                                    <option value="tous">Tous les clients (Base entière)</option>
+                                    <option value="impayes">Tous les clients avec retard d'impaiement</option>
+                                    <option value="plus-4-mois">Clients avec un retard de plus de 4 mois</option>
+                                </select>
+                                <p id="broadcast-target-preview" class="text-xs text-slate-500 mt-1.5 font-medium">Nombre de clients concernés : calcul en cours...</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">2. Titre de la notification</label>
+                                <input type="text" id="broadcast-title" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="Ex: Rappel important - Régularisation échéance">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">3. Message / Contenu</label>
+                                <textarea id="broadcast-message" rows="5" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="Rédigez votre message ici..."></textarea>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button type="submit" id="btn-envoyer-broadcast" class="px-6 py-3.5 bg-primary hover:bg-slate-800 text-white font-bold rounded-xl text-sm transition shadow-lg flex items-center space-x-2">
+                                    <i class="fa-solid fa-paper-plane text-accent"></i>
+                                    <span>Diffuser la notification</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ONGLET : ACOMPTES AGENTS DU TERRAIN -->
+                <div id="tab-acomptes-agents" class="hidden fade-in space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Gestion des Acomptes & Avances (Agents Terrain)</h2>
+                            <p class="text-xs text-slate-500 mt-1">Suivez les demandes d'acomptes, validez-les et gérez les remboursements.</p>
+                        </div>
+                        <button onclick="openModal('modal-nouvel-acompte')" class="px-4 py-2.5 bg-primary hover:bg-slate-800 text-white rounded-xl text-sm font-medium transition shadow-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-plus text-accent"></i>
+                            <span>Octroyer un acompte</span>
+                        </button>
+                    </div>
+
+                    <!-- Table des acomptes -->
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase bg-slate-50/50">
+                                <tr>
+                                    <th class="p-5">Agent</th>
+                                    <th class="p-5">Motif / Description</th>
+                                    <th class="p-5">Montant demandé</th>
+                                    <th class="p-5">Statut</th>
+                                    <th class="p-5">Date</th>
+                                    <th class="p-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="acomptes-table-body" class="divide-y divide-slate-100 text-sm">
+                                <tr><td colspan="6" class="p-8 text-center text-slate-400">Chargement des acomptes...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL : OCTROYER / ENREGISTRER UN ACOMPTE (ADMIN) -->
+    <div id="modal-nouvel-acompte" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Enregistrer un acompte agent</h3>
+                <button onclick="closeModal('modal-nouvel-acompte')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-admin-acompte" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nom de l'Agent</label>
+                    <input type="text" id="admin-agent-nom" required placeholder="Ex: Jean Mukendi" class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Téléphone de l'Agent</label>
+                    <input type="tel" id="admin-agent-tel" required placeholder="+243..." class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Montant de l'Acompte (FC)</label>
+                    <input type="number" id="admin-agent-montant" required placeholder="Ex: 50000" class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Motif</label>
+                    <input type="text" id="admin-agent-motif" required placeholder="Ex: Frais de déplacement / Urgence" class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-nouvel-acompte')" class="px-4 py-2 border rounded-xl text-sm">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium transition shadow-md">Enregistrer & Valider</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL FICHE DÉTAILLÉE CLIENT -->
+    <div id="client-detail-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-4">
+                <div>
+                    <h3 class="font-bold text-xl text-slate-900">Fiche Complète du Client</h3>
+                    <p class="text-xs text-slate-400">Gestion et interactions directes</p>
+                </div>
+                <button onclick="closeModal('client-detail-modal')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div id="client-detail-content" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm"></div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <span class="text-xs font-bold text-slate-500 uppercase">Actions Rapides :</span>
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <button type="button" id="btn-action-message" onclick="" class="flex-1 sm:flex-none px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-semibold transition shadow-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-comment-sms"></i>
+                        <span>Envoyer un message</span>
+                    </button>
+                    <button type="button" id="btn-action-activer" onclick="" class="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition shadow-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Activer Solde & Paiement</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t">
+                <button type="button" onclick="closeModal('client-detail-modal')" class="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-medium shadow-md">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ENVOI DE MESSAGE -->
+    <div id="message-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Envoyer un message au client</h3>
+                <button onclick="closeModal('message-modal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="message-form" class="space-y-4">
+                <input type="hidden" id="msg-client-tel">
+                <input type="hidden" id="msg-client-nom">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Destinataire</label>
+                    <p id="msg-display-dest" class="font-bold text-slate-800 text-sm bg-slate-50 p-3 rounded-xl border"></p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Contenu du message</label>
+                    <textarea id="msg-contenu" rows="4" required class="w-full p-3 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="Écrivez votre message..."></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('message-modal')" class="px-4 py-2 border rounded-xl text-sm">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-medium transition shadow-md">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL MODIFICATION PAIEMENT -->
+    <div id="edit-paiement-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Modifier le Paiement</h3>
+                <button onclick="closeModal('edit-paiement-modal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="edit-paiement-form" class="space-y-4">
+                <input type="hidden" id="edit-paiement-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Téléphone Client</label>
+                    <input type="text" id="edit-paiement-tel" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none" readonly>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">ID de Transaction</label>
+                    <input type="text" id="edit-paiement-txid" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Montant Réel (en FC)</label>
+                    <input type="number" id="edit-paiement-montant" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('edit-paiement-modal')" class="px-4 py-2 border rounded-xl text-sm">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-medium transition shadow-md">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL GESTION SOLDE DIRECT -->
+    <div id="solde-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Ajuster le Solde Client</h3>
+                <button onclick="closeModal('solde-modal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="solde-form" class="space-y-4">
+                <input type="hidden" id="modal-dossier-id">
+                <input type="hidden" id="modal-client-nom">
+                <input type="hidden" id="modal-client-tel">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Client</label>
+                    <p id="modal-display-nom" class="font-bold text-slate-800 text-sm bg-slate-50 p-3 rounded-xl border"></p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nouveau Montant Versé Total (FC)</label>
+                    <input type="number" id="modal-montant-solde" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="Ex: 350000">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('solde-modal')" class="px-4 py-2 border rounded-xl text-sm">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition shadow-md">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NOTIFICATION -->
+    <div id="notification-modal" class="fixed bottom-6 right-6 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl hidden items-center space-x-4 z-50 transition-all border border-slate-700">
+        <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-bell"></i>
+        </div>
+        <div>
+            <p class="text-xs text-slate-400 font-semibold uppercase">Mise à jour effectuée</p>
+            <p id="notification-text" class="text-sm font-bold text-white"></p>
+        </div>
+    </div>
+
+    <!-- MODAL MOTO -->
+    <div id="moto-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-4">
+            <h3 class="font-bold text-lg text-slate-900">Enregistrer une Moto</h3>
+            <form id="moto-form" class="space-y-4">
+                <input type="text" id="moto-chassis" placeholder="N° de Châssis" required class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none">
+                <input type="text" id="moto-plaque" placeholder="Plaque d'immatriculation" required class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none">
+                <input type="text" id="moto-modele" placeholder="Modèle (ex: Haojue 125)" required class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none">
+                <input type="number" id="moto-prix-credit" placeholder="Prix total à crédit (FC)" required class="w-full px-4 py-2.5 border rounded-xl text-sm outline-none">
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('moto-modal')" class="px-4 py-2 border rounded-xl text-sm">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIREBASE & SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxtMLS_VyhSVSooqJCDjUQShgSgSPTdXo",
+            authDomain: "suivi-gps-48811.firebaseapp.com",
+            projectId: "suivi-gps-48811",
+            storageBucket: "suivi-gps-48811.firebasestorage.app",
+            messagingSenderId: "147934111832",
+            appId: "1:147934111832:web:42a5f278d0636c17f4c22d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let globalClientsList = []; 
+        let unsubscribeChat = null;
+        let unsubscribeInboxListener = null;
+        let activeChatTelephone = null; // Suivi du chat actuellement ouvert
+
+        const statusBadge = document.getElementById('firebase-status');
+        statusBadge.className = "flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100";
+        statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full"></span> Firebase Connecté`;
+
+        // Écouteur global en arrière-plan pour détecter les nouveaux messages et faire clignoter l'onglet chat
+        function initGlobalInboxListener() {
+            if(unsubscribeInboxListener) unsubscribeInboxListener();
+
+            const qAllChats = query(collection(db, "chats"));
+            unsubscribeInboxListener = onSnapshot(qAllChats, (snapshot) => {
+                let hasNewMessage = false;
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    // Si le message vient d'un client (emetteur == client ou absent) et qu'il n'est pas le chat actuellement actif
+                    if((msg.emetteur === "client" || !msg.emetteur) && msg.telephone !== activeChatTelephone) {
+                        hasNewMessage = true;
+                    }
+                });
+
+                const navChatBtn = document.getElementById('nav-chat');
+                if(navChatBtn) {
+                    if(hasNewMessage) {
+                        navChatBtn.classList.add('animate-blink-tab', 'bg-amber-500/20', 'text-white');
+                    } else {
+                        navChatBtn.classList.remove('animate-blink-tab', 'bg-amber-500/20');
+                    }
+                }
+            });
+        }
+        initGlobalInboxListener();
+
+        // Fonction switchTab
+        window.switchTab = function(tabId) {
+            ['dashboard', 'motos', 'clients', 'paiements', 'suivi-clients', 'chat', 'notifications', 'acomptes-agents'].forEach(t => {
+                const tabEl = document.getElementById(`tab-${t}`);
+                if(tabEl) tabEl.classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if(navBtn && t !== 'chat') { // Garder l'effet visuel si géré ailleurs
+                    navBtn.classList.remove('bg-slate-800', 'text-white');
+                    navBtn.classList.add('text-slate-400');
+                }
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-slate-800', 'text-white');
+                activeBtn.classList.remove('text-slate-400');
+                if(tabId === 'chat') {
+                    // Si on clique sur l'onglet chat, on retire le clignotement
+                    activeBtn.classList.remove('animate-blink-tab', 'bg-amber-500/20');
+                }
+            }
+            const titles = { 
+                dashboard: 'Tableau de Bord', 
+                motos: 'Gestion des Stocks', 
+                clients: 'Base de Données - Nos Clients',
+                paiements: 'Validation des Paiements',
+                'suivi-clients': 'Suivi Global & Impayés',
+                chat: 'Centre de Support & Chat Client',
+                notifications: 'Diffusion de Notifications par Filtre',
+                'acomptes-agents': 'Gestion des Acomptes & Avances'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
+
+            if(tabId === 'chat') {
+                chargerBoiteReceptionChat();
+            } else if(tabId === 'notifications') {
+                mettreAJourCompteCible();
+            } else if(tabId === 'acomptes-agents') {
+                chargerAcomptesAdmin();
+            }
+        }
+
+        window.openModal = function(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+        window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+
+        function obtenirClientsFiltres(filtre) {
+            return globalClientsList.filter(c => {
+                const totalCredit = parseFloat(c.totalCredit || 1250000);
+                const montantVerse = parseFloat(c.montantVersé || 0);
+                const montantRestant = Math.max(0, totalCredit - montantVerse);
+                const echeanceMensuelle = totalCredit / 6;
+                const moisRestants = echeanceMensuelle > 0 ? (montantRestant / echeanceMensuelle) : 0;
+
+                if(filtre === 'tous') return true;
+                if(filtre === 'impayes') return montantRestant > 0;
+                if(filtre === 'plus-4-mois') return moisRestants > 4;
+                return false;
+            });
+        }
+
+        window.mettreAJourCompteCible = function() {
+            const filtre = document.getElementById('broadcast-filter').value;
+            const clientsCibles = obtenirClientsFiltres(filtre);
+            document.getElementById('broadcast-target-preview').innerText = `Nombre de clients concernés : ${clientsCibles.length} client(s)`;
+        }
+
+        document.getElementById('broadcast-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const filtre = document.getElementById('broadcast-filter').value;
+            const titre = document.getElementById('broadcast-title').value;
+            const message = document.getElementById('broadcast-message').value;
+
+            const clientsCibles = obtenirClientsFiltres(filtre);
+
+            if(clientsCibles.length === 0) {
+                alert("Aucun client ne correspond à ce filtre actuellement.");
+                return;
+            }
+
+            if(confirm(`Voulez-vous vraiment diffuser cette notification à ${clientsCibles.length} client(s) ?`)) {
+                const btn = document.getElementById('btn-envoyer-broadcast');
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Envoi en cours...</span>`;
+
+                try {
+                    for(const client of clientsCibles) {
+                        await addDoc(collection(db, "notifications"), {
+                            telephone: client.telephone,
+                            type: "broadcast",
+                            sender: "admin",
+                            titre: titre,
+                            message: message,
+                            date: new Date().toISOString(),
+                            lu: false
+                        });
+                    }
+
+                    afficherNotification(`Notification diffusée avec succès à ${clientsCibles.length} client(s) !`);
+                    document.getElementById('broadcast-form').reset();
+                    mettreAJourCompteCible();
+                } catch(err) {
+                    alert("Erreur lors de la diffusion : " + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-paper-plane text-accent"></i><span>Diffuser la notification</span>`;
+                }
+            }
+        });
+
+        // --- GESTION DE LA BOÎTE DE RÉCEPTION CHAT ---
+        let rawChatMessagesMap = {}; // Stocke les derniers messages par téléphone
+
+        function chargerBoiteReceptionChat(searchQuery = "") {
+            const listContainer = document.getElementById('chat-clients-list');
+            listContainer.innerHTML = `<div class="p-4 text-center text-slate-400 text-sm">Chargement de la boîte de réception...</div>`;
+
+            // Récupérer tous les messages de la collection "chats"
+            getDocs(collection(db, "chats")).then(snapshot => {
+                let conversationsMap = {};
+
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    const tel = msg.telephone;
+                    if(!tel) return;
+
+                    const timestamp = msg.timestamp || new Date(msg.date || Date.now()).getTime();
+
+                    if(!conversationsMap[tel] || timestamp > conversationsMap[tel].timestamp) {
+                        // Trouver le nom du client correspondant dans la liste globale
+                        const foundClient = globalClientsList.find(c => c.telephone === tel);
+                        conversationsMap[tel] = {
+                            telephone: tel,
+                            nomClient: foundClient ? foundClient.nomClient : (msg.nomClient || "Client Inconnu"),
+                            clientId: foundClient ? foundClient.id : null,
+                            dernierMessage: msg.texte || "",
+                            date: msg.date || "",
+                            timestamp: timestamp
+                        };
+                    }
+                });
+
+                // Convertir en tableau et trier du plus récent au plus ancien
+                let conversationsList = Object.values(conversationsMap);
+                conversationsList.sort((a, b) => b.timestamp - a.timestamp);
+
+                // Filtrer selon la recherche
+                const queryText = searchQuery.toLowerCase();
+                const filtered = conversationsList.filter(item => 
+                    item.nomClient.toLowerCase().includes(queryText) || 
+                    item.telephone.toLowerCase().includes(queryText) ||
+                    item.dernierMessage.toLowerCase().includes(queryText)
+                );
+
+                listContainer.innerHTML = "";
+
+                if(filtered.length === 0) {
+                    listContainer.innerHTML = `<div class="p-4 text-center text-slate-400 text-sm">Aucun message dans la boîte de réception.</div>`;
+                    return;
+                }
+
+                const activeTel = document.getElementById('active-chat-client-tel').value;
+
+                filtered.forEach(item => {
+                    const isSelected = activeTel === item.telephone;
+                    const bgClass = isSelected ? 'bg-white shadow-sm border-l-4 border-accent' : 'hover:bg-white';
+                    
+                    listContainer.innerHTML += `
+                        <div onclick="selectionnerClientChat('${item.clientId || ''}', '${item.nomClient}', '${item.telephone}')" class="p-4 ${bgClass} cursor-pointer transition border-b border-slate-100 flex items-start space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                                ${item.nomClient.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-bold text-slate-900 text-sm truncate">${item.nomClient}</p>
+                                    <span class="text-[10px] text-slate-400 font-medium flex-shrink-0 ml-1">${item.date}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 truncate mt-0.5">${item.dernierMessage}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }).catch(err => {
+                listContainer.innerHTML = `<div class="p-4 text-center text-rose-500 text-sm">Erreur de chargement.</div>`;
+            });
+        }
+
+        window.filtrerClientsChatList = function() {
+            const queryText = document.getElementById('search-chat-clients').value;
+            chargerBoiteReceptionChat(queryText);
+        }
+
+        window.selectionnerClientChat = function(clientId, nomClient, telephone) {
+            activeChatTelephone = telephone; // Met à jour le chat actif pour stopper le clignotement s'il venait de ce client
+            document.getElementById('active-chat-client-id').value = clientId;
+            document.getElementById('active-chat-client-tel').value = telephone;
+            document.getElementById('active-chat-name').innerText = nomClient;
+            document.getElementById('active-chat-phone').innerText = telephone;
+
+            const actionContainer = document.getElementById('active-chat-action-container');
+            const ficheBtn = document.getElementById('btn-open-client-from-chat');
+            if(clientId && clientId !== "null" && clientId !== "") {
+                actionContainer.classList.remove('hidden');
+                ficheBtn.setAttribute('onclick', `afficherDetailsClient('${clientId}')`);
+            } else {
+                actionContainer.classList.add('hidden');
+            }
+
+            chargerBoiteReceptionChat(document.getElementById('search-chat-clients').value);
+
+            document.getElementById('admin-chat-input').removeAttribute('disabled');
+            document.getElementById('admin-chat-send-btn').removeAttribute('disabled');
+
+            if(unsubscribeChat) unsubscribeChat();
+
+            const messagesContainer = document.getElementById('chat-messages-container');
+            messagesContainer.innerHTML = `<div class="m-auto text-center text-slate-400 text-sm">Chargement de la conversation...</div>`;
+
+            const qMessages = query(collection(db, "chats"), where("telephone", "==", telephone));
+            
+            unsubscribeChat = onSnapshot(qMessages, (snapshot) => {
+                messagesContainer.innerHTML = "";
+                if(snapshot.empty) {
+                    messagesContainer.innerHTML = `<div class="m-auto text-center text-slate-400 text-sm">Aucun message pour le moment avec ce client.</div>`;
+                    return;
+                }
+
+                let messages = [];
+                snapshot.forEach(docSnap => {
+                    messages.push(docSnap.data());
+                });
+                messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                messages.forEach(msg => {
+                    const isAdmin = msg.emetteur === "admin";
+                    
+                    if(isAdmin) {
+                        messagesContainer.innerHTML += `
+                            <div class="flex flex-col items-end">
+                                <div class="max-w-[75%] bg-primary text-white p-3.5 rounded-2xl rounded-tr-none text-sm shadow-sm">
+                                    <p class="font-semibold text-[10px] text-accent uppercase mb-1">Support / Admin</p>
+                                    <p class="leading-relaxed">${msg.texte}</p>
+                                </div>
+                                <span class="text-[10px] text-slate-400 mt-1 mr-1">${msg.date || ''}</span>
+                            </div>
+                        `;
+                    } else {
+                        messagesContainer.innerHTML += `
+                            <div class="flex flex-col items-start">
+                                <div class="max-w-[75%] bg-white border border-slate-200 text-slate-800 p-3.5 rounded-2xl rounded-tl-none text-sm shadow-sm">
+                                    <p class="font-semibold text-[10px] text-sky-600 uppercase mb-1">Client</p>
+                                    <p class="leading-relaxed">${msg.texte}</p>
+                                </div>
+                                <span class="text-[10px] text-slate-400 mt-1 ml-1">${msg.date || ''}</span>
+                            </div>
+                        `;
+                    }
+                });
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+
+        // Envoi d'un message par l'admin
+        document.getElementById('admin-chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const telephoneClient = document.getElementById('active-chat-client-tel').value;
+            const messageTexte = document.getElementById('admin-chat-input').value;
+
+            if(!telephoneClient || !messageTexte) return;
+
+            try {
+                await addDoc(collection(db, "chats"), {
+                    telephone: telephoneClient,
+                    emetteur: "admin",
+                    texte: messageTexte,
+                    date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: Date.now()
+                });
+
+                document.getElementById('admin-chat-input').value = "";
+                chargerBoiteReceptionChat();
+            } catch(err) {
+                alert("Erreur lors de l'envoi du message : " + err.message);
+            }
+        });
+
+        window.ouvrirModalMessage = function(telephone, nomClient) {
+            document.getElementById('msg-client-tel').value = telephone;
+            document.getElementById('msg-client-nom').value = nomClient;
+            document.getElementById('msg-display-dest').innerText = `${nomClient} (${telephone})`;
+            document.getElementById('msg-contenu').value = `Bonjour ${nomClient}, votre profil APLIFA a bien été mis à jour.`;
+            openModal('message-modal');
+        }
+
+        document.getElementById('message-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const telephone = document.getElementById('msg-client-tel').value;
+            const nomClient = document.getElementById('msg-client-nom').value;
+            const contenu = document.getElementById('msg-contenu').value;
+
+            try {
+                const qCredit = query(collection(db, "credits"), where("telephone", "==", telephone));
+                const snapCredit = await getDocs(qCredit);
+
+                if(!snapCredit.empty) {
+                    const dossierDocId = snapCredit.docs[0].id;
+                    await addDoc(collection(db, `credits/${dossierDocId}/notifications`), {
+                        type: "message",
+                        sender: "admin",
+                        titre: "Message de l'Administration",
+                        message: contenu,
+                        date: new Date().toISOString(),
+                        lu: false
+                    });
+                }
+
+                await addDoc(collection(db, "notifications"), {
+                    telephone: telephone,
+                    type: "message",
+                    sender: "admin",
+                    titre: "Message de l'Administration",
+                    message: contenu,
+                    date: new Date().toISOString(),
+                    lu: false
+                });
+
+                closeModal('message-modal');
+                closeModal('client-detail-modal');
+                afficherNotification(`Message envoyé avec succès à ${nomClient} !`);
+            } catch(err) {
+                alert("Erreur lors de l'envoi : " + err.message);
+            }
+        });
+
+        window.activerSoldeEtPaiementClient = async function(clientId, telephone, nomClient) {
+            if(confirm(`Voulez-vous activer le solde et les paiements pour ${nomClient} ?`)) {
+                try {
+                    const dossierRef = doc(db, "credits", clientId);
+                    await updateDoc(dossierRef, { 
+                        statut: "Actif & Paiement Activé",
+                        soldeActive: true 
+                    });
+
+                    await addDoc(collection(db, `credits/${clientId}/notifications`), {
+                        type: "activation",
+                        sender: "admin",
+                        titre: "Solde et Paiement Activés !",
+                        message: "Votre solde et vos options de paiement sont désormais activés sur APLIFA.",
+                        date: new Date().toISOString(),
+                        lu: false
+                    });
+
+                    await addDoc(collection(db, "notifications"), {
+                        telephone: telephone,
+                        type: "activation",
+                        sender: "admin",
+                        titre: "Solde et Paiement Activés !",
+                        message: "Votre solde et vos options de paiement sont désormais activés sur APLIFA.",
+                        date: new Date().toISOString(),
+                        lu: false
+                    });
+
+                    closeModal('client-detail-modal');
+                    afficherNotification(`Solde et paiements activés pour ${nomClient} !`);
+                    loadData();
+                } catch(err) {
+                    alert("Erreur : " + err.message);
+                }
+            }
+        }
+
+        window.afficherDetailsClient = function(clientId) {
+            const client = globalClientsList.find(c => c.id === clientId);
+            if(!client) return;
+
+            const totalCredit = parseFloat(client.totalCredit || 1250000);
+            const montantVerse = parseFloat(client.montantVersé || 0);
+            const montantRestant = Math.max(0, totalCredit - montantVerse);
+
+            const contentDiv = document.getElementById('client-detail-content');
+            contentDiv.innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Nom complet</span>
+                    <p class="font-bold text-slate-900 text-base">${client.nomClient || '--'} ${client.postnom || ''} ${client.prenom || ''}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Numéro de Téléphone</span>
+                    <p class="font-bold text-slate-900 text-base">${client.telephone || '--'}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Ville / Adresse</span>
+                    <p class="font-semibold text-slate-800">${client.ville || '--'}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Moto / Véhicule attribué</span>
+                    <p class="font-semibold text-slate-800">${client.marqueMoto || 'Moto standard'}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Crédit Total</span>
+                    <p class="font-bold text-slate-900">${totalCredit.toLocaleString()} FC</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Montant déjà versé</span>
+                    <p class="font-bold text-emerald-600">${montantVerse.toLocaleString()} FC</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Reste dû (Impayé)</span>
+                    <p class="font-bold text-rose-600">${montantRestant.toLocaleString()} FC</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Statut du dossier</span>
+                    <p class="font-bold text-accent uppercase text-xs mt-1">${client.statut || 'Actif'}</p>
+                </div>
+            `;
+
+            document.getElementById('btn-action-message').setAttribute('onclick', `ouvrirModalMessage('${client.telephone}', '${client.nomClient}')`);
+            document.getElementById('btn-action-activer').setAttribute('onclick', `activerSoldeEtPaiementClient('${client.id}', '${client.telephone}', '${client.nomClient}')`);
+
+            openModal('client-detail-modal');
+        }
+
+        window.ouvrirModalEditPaiement = function(idPaiement, telephone, montantActuel, txIdActuel) {
+            document.getElementById('edit-paiement-id').value = idPaiement;
+            document.getElementById('edit-paiement-tel').value = telephone;
+            document.getElementById('edit-paiement-montant').value = montantActuel;
+            document.getElementById('edit-paiement-txid').value = txIdActuel || '';
+            openModal('edit-paiement-modal');
+        }
+
+        document.getElementById('edit-paiement-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idPaiement = document.getElementById('edit-paiement-id').value;
+            const nouveauMontant = parseFloat(document.getElementById('edit-paiement-montant').value) || 0;
+            const nouveauTxId = document.getElementById('edit-paiement-txid').value;
+
+            try {
+                const paiementRef = doc(db, "paiements", idPaiement);
+                await updateDoc(paiementRef, {
+                    montant: nouveauMontant,
+                    idTransaction: nouveauTxId
+                });
+                closeModal('edit-paiement-modal');
+                afficherNotification("Paiement modifié avec succès !");
+                loadData();
+            } catch(e) {
+                alert("Erreur : " + e.message);
+            }
+        });
+
+        window.rejeterOuSupprimerPaiement = async function(idPaiement) {
+            if(confirm("Êtes-vous sûr de vouloir supprimer ce paiement ?")) {
+                try {
+                    await deleteDoc(doc(db, "paiements", idPaiement));
+                    afficherNotification("Paiement rejeté et supprimé.");
+                    loadData();
+                } catch(e) {
+                    alert("Erreur : " + e.message);
+                }
+            }
+        }
+
+        window.ouvrirModalSolde = function(idDossier, nomClient, telephone, montantActuel) {
+            document.getElementById('modal-dossier-id').value = idDossier;
+            document.getElementById('modal-client-nom').value = nomClient;
+            document.getElementById('modal-client-tel').value = telephone;
+            document.getElementById('modal-display-nom').innerText = `${nomClient} (${telephone})`;
+            document.getElementById('modal-montant-solde').value = montantActuel > 0 ? montantActuel : '';
+            openModal('solde-modal');
+        }
+
+        function afficherNotification(texte) {
+            const modalNotif = document.getElementById('notification-modal');
+            const texteNotif = document.getElementById('notification-text');
+            texteNotif.innerText = texte;
+            modalNotif.classList.remove('hidden');
+            modalNotif.classList.add('flex');
+            
+            setTimeout(() => {
+                modalNotif.classList.remove('flex');
+                modalNotif.classList.add('hidden');
+            }, 5000);
+        }
+
+        window.validerPaiementAdmin = async function(idPaiement, telephoneClient, montantVerse) {
+            try {
+                const paiementRef = doc(db, "paiements", idPaiement);
+                await updateDoc(paiementRef, { statut: "valide" });
+
+                const qCredit = query(collection(db, "credits"), where("telephone", "==", telephoneClient));
+                const snapCredit = await getDocs(qCredit);
+
+                if (!snapCredit.empty) {
+                    snapCredit.forEach(async (docCredit) => {
+                        const data = docCredit.data();
+                        const ancienMontant = parseFloat(data.montantVersé || 0);
+                        const nouveauMontantTotal = ancienMontant + parseFloat(montantVerse);
+                        
+                        const creditRef = doc(db, "credits", docCredit.id);
+                        await updateDoc(creditRef, { montantVersé: nouveauMontantTotal });
+
+                        await addDoc(collection(db, `credits/${docCredit.id}/notifications`), {
+                            type: "paiement_valide",
+                            sender: "admin",
+                            titre: "Paiement Validé",
+                            message: `Votre versement de ${Number(montantVerse).toLocaleString()} FC a été validé.`,
+                            date: new Date().toISOString(),
+                            lu: false
+                        });
+
+                        await addDoc(collection(db, "notifications"), {
+                            telephone: telephoneClient,
+                            type: "paiement_valide",
+                            sender: "admin",
+                            titre: "Paiement Validé",
+                            message: `Votre versement de ${Number(montantVerse).toLocaleString()} FC a été validé.`,
+                            date: new Date().toISOString(),
+                            lu: false
+                        });
+                    });
+                }
+
+                afficherNotification("Paiement validé avec succès !");
+                loadData();
+            } catch(e) {
+                alert("Erreur : " + e.message);
+            }
+        }
+
+        document.getElementById('solde-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idDossier = document.getElementById('modal-dossier-id').value;
+            const nomClient = document.getElementById('modal-client-nom').value;
+            const nouveauMontant = parseFloat(document.getElementById('modal-montant-solde').value) || 0;
+
+            try {
+                const dossierRef = doc(db, "credits", idDossier);
+                await updateDoc(dossierRef, { montantVersé: nouveauMontant });
+                
+                closeModal('solde-modal');
+                afficherNotification(`Montant mis à jour pour ${nomClient}.`);
+                loadData();
+            } catch(e) {
+                alert("Erreur : " + e.message);
+            }
+        });
+
+        window.filtrerClientsDB = function() {
+            const queryText = document.getElementById('search-db-clients').value.toLowerCase();
+            const filtered = globalClientsList.filter(c => 
+                (c.nomClient && c.nomClient.toLowerCase().includes(queryText)) || 
+                (c.telephone && c.telephone.toLowerCase().includes(queryText))
+            );
+            renderClientsDBTable(filtered);
+        }
+
+        window.filtrerClientsSuivi = function() {
+            const queryText = document.getElementById('search-client').value.toLowerCase();
+            const filtered = globalClientsList.filter(c => 
+                (c.nomClient && c.nomClient.toLowerCase().includes(queryText)) || 
+                (c.telephone && c.telephone.toLowerCase().includes(queryText))
+            );
+            renderSuiviTable(filtered);
+        }
+
+        function renderClientsDBTable(clients) {
+            const dbTable = document.getElementById('clients-db-table-body');
+            dbTable.innerHTML = "";
+
+            if(clients.length === 0) {
+                dbTable.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Aucun client trouvé.</td></tr>`;
+                return;
+            }
+
+            clients.forEach(c => {
+                dbTable.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                        <td class="p-4">
+                            <button onclick="afficherDetailsClient('${c.id}')" class="font-bold text-slate-900 hover:text-accent text-left transition flex items-center space-x-2">
+                                <i class="fa-solid fa-user-circle text-accent"></i>
+                                <span>${c.nomClient} ${c.postnom || ''} ${c.prenom || ''}</span>
+                            </button>
+                        </td>
+                        <td class="p-4 text-slate-600">${c.telephone}</td>
+                        <td class="p-4 text-slate-600">${c.marqueMoto || 'Moto standard'}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium">${c.statut || 'Actif'}</span></td>
+                        <td class="p-4 text-right">
+                            <button onclick="afficherDetailsClient('${c.id}')" class="px-3 py-1.5 bg-sky-50 text-sky-600 hover:bg-sky-100 rounded-xl text-xs font-semibold transition">
+                                <i class="fa-solid fa-eye mr-1"></i> Fiche
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderSuiviTable(clients) {
+            const suiviTable = document.getElementById('suivi-clients-table-body');
+            suiviTable.innerHTML = "";
+
+            if(clients.length === 0) {
+                suiviTable.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Aucun client trouvé.</td></tr>`;
+                return;
+            }
+
+            clients.forEach(c => {
+                const docId = c.id;
+                const totalCredit = parseFloat(c.totalCredit || 1250000);
+                const montantVerse = parseFloat(c.montantVersé || 0);
+                const montantRestant = Math.max(0, totalCredit - montantVerse);
+                const echeanceMensuelle = totalCredit / 6; 
+                const moisRestantsNonPayes = echeanceMensuelle > 0 ? (montantRestant / echeanceMensuelle).toFixed(1) : "0";
+
+                suiviTable.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                        <td class="p-4">
+                            <span class="font-semibold text-slate-900">${c.nomClient}</span><br>
+                            <span class="text-xs text-slate-400">${c.telephone} - ${c.ville || ''}</span>
+                        </td>
+                        <td class="p-4 text-slate-600 font-medium">${totalCredit.toLocaleString()} FC</td>
+                        <td class="p-4 font-bold text-emerald-600">${montantVerse.toLocaleString()} FC</td>
+                        <td class="p-4 font-bold text-rose-600">${montantRestant.toLocaleString()} FC</td>
+                        <td class="p-4 font-semibold text-amber-600"><i class="fa-regular fa-calendar-days mr-1"></i> ${moisRestantsNonPayes} mois</td>
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end space-x-1.5">
+                                <button onclick="ouvrirModalSolde('${docId}', '${c.nomClient}', '${c.telephone}', ${montantVerse})" title="Modifier solde" class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 flex items-center justify-center transition">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </button>
+                                <a href="tel:${c.telephone}" title="Appeler" class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition">
+                                    <i class="fa-solid fa-phone text-xs"></i>
+                                </a>
+                                <button onclick="ouvrirModalMessage('${c.telephone}', '${c.nomClient}')" title="Message" class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition">
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function loadData() {
+            try {
+                const mSnap = await getDocs(collection(db, "motos"));
+                const mTable = document.getElementById('motos-table-body');
+                mTable.innerHTML = "";
+                let mCount = 0;
+                mSnap.forEach(d => {
+                    mCount++;
+                    const m = d.data();
+                    mTable.innerHTML += `<tr class="border-b border-slate-100">
+                        <td class="p-4 font-semibold">${m.chassis} <br><span class="text-xs text-slate-400">${m.plaque || ''}</span></td>
+                        <td class="p-4">${m.modele}</td>
+                        <td class="p-4 text-emerald-600 font-medium">${Number(m.prixCredit).toLocaleString()} FC</td>
+                        <td class="p-4"><span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium">Disponible</span></td>
+                    </tr>`;
+                });
+                document.getElementById('kpi-motos').innerText = mCount;
+
+                const pSnap = await getDocs(collection(db, "paiements"));
+                const pTable = document.getElementById('paiements-table-body');
+                pTable.innerHTML = "";
+                let pCount = 0;
+
+                pSnap.forEach(d => {
+                    const p = d.data();
+                    const docId = d.id;
+                    const statut = p.statut || "en_attente";
+
+                    if(statut === "en_attente") {
+                        pCount++;
+                        pTable.innerHTML += `
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                                <td class="p-4 font-semibold text-slate-900">${p.telephone}</td>
+                                <td class="p-4">
+                                    <span class="font-bold text-emerald-600">${Number(p.montant).toLocaleString()} FC</span><br>
+                                    <span class="text-xs text-slate-400 uppercase">${p.operateur}</span>
+                                </td>
+                                <td class="p-4 font-mono text-xs text-slate-700">${p.idTransaction || 'N/A'}</td>
+                                <td class="p-4 text-xs text-slate-500">${p.date || '--'}</td>
+                                <td class="p-4 text-right">
+                                    <div class="flex items-center justify-end space-x-1.5">
+                                        <button onclick="validerPaiementAdmin('${docId}', '${p.telephone}', ${p.montant})" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+                                            Valider
+                                        </button>
+                                        <button onclick="ouvrirModalEditPaiement('${docId}', '${p.telephone}', ${p.montant}, '${p.idTransaction || ''}')" class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 flex items-center justify-center transition">
+                                            <i class="fa-solid fa-pen text-xs"></i>
+                                        </button>
+                                        <button onclick="rejeterOuSupprimerPaiement('${docId}')" class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition">
+                                            <i class="fa-solid fa-trash-can text-xs"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                if(pCount === 0) {
+                    pTable.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Aucun paiement en attente.</td></tr>`;
+                }
+
+                const cSnap = await getDocs(collection(db, "credits"));
+                let totalEncaissements = 0;
+                let totalImpayesEstimes = 0;
+                let nombreTotalClients = 0;
+                globalClientsList = [];
+
+                cSnap.forEach(d => {
+                    const c = d.data();
+                    const docId = d.id;
+                    const montantVerse = parseFloat(c.montantVersé || 0);
+
+                    totalEncaissements += montantVerse;
+                    const totalCredit = parseFloat(c.totalCredit || 1250000);
+                    const montantRestant = Math.max(0, totalCredit - montantVerse);
+                    totalImpayesEstimes += montantRestant;
+
+                    globalClientsList.push({ id: docId, ...c });
+                    nombreTotalClients++;
+                });
+
+                document.getElementById('kpi-total-clients').innerText = nombreTotalClients;
+                
+                renderClientsDBTable(globalClientsList);
+                renderSuiviTable(globalClientsList);
+                mettreAJourCompteCible();
+
+                document.getElementById('kpi-encaissements').innerHTML = `${totalEncaissements.toLocaleString()} <span class="text-sm font-normal text-slate-500">FC</span>`;
+                document.getElementById('kpi-impayes').innerHTML = `${totalImpayesEstimes.toLocaleString()} <span class="text-sm font-normal text-slate-500">FC</span>`;
+
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('moto-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "motos"), {
+                    chassis: document.getElementById('moto-chassis').value,
+                    plaque: document.getElementById('moto-plaque').value,
+                    modele: document.getElementById('moto-modele').value,
+                    prixCredit: document.getElementById('moto-prix-credit').value,
+                    createdAt: new Date()
+                });
+                closeModal('moto-modal');
+                document.getElementById('moto-form').reset();
+                loadData();
+                alert("Moto ajoutée avec succès !");
+            } catch(err) { alert("Erreur : " + err.message); }
+        });
+
+        loadData();
+
+        // Charger les acomptes dans le tableau admin
+        async function chargerAcomptesAdmin() {
+            try {
+                const snap = await getDocs(collection(db, "acomptes_agents"));
+                const tbody = document.getElementById('acomptes-table-body');
+                tbody.innerHTML = "";
+                let count = 0;
+
+                snap.forEach(d => {
+                    count++;
+                    const item = d.data();
+                    const id = d.id;
+                    let badgeStyle = "bg-amber-50 text-amber-700";
+                    if(item.statut === "Validé") badgeStyle = "bg-emerald-50 text-emerald-700";
+                    if(item.statut === "Rejeté" || item.statut === "Remboursé") badgeStyle = "bg-slate-100 text-slate-600";
+
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                            <td class="p-4">
+                                <span class="font-bold text-slate-900">${item.nomAgent}</span><br>
+                                <span class="text-xs text-slate-400">${item.telephone}</span>
+                            </td>
+                            <td class="p-4 text-slate-700">${item.motif}</td>
+                            <td class="p-4 font-bold text-slate-900">${Number(item.montant).toLocaleString()} FC</td>
+                            <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${badgeStyle}">${item.statut || 'En attente'}</span></td>
+                            <td class="p-4 text-xs text-slate-500">${item.date ? new Date(item.date).toLocaleDateString() : '--'}</td>
+                            <td class="p-4 text-right space-x-1">
+                                ${item.statut === 'En attente' ? `
+                                    <button onclick="changerStatutAcompte('${id}', 'Validé')" class="px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700">Valider</button>
+                                    <button onclick="changerStatutAcompte('${id}', 'Rejeté')" class="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-xl text-xs font-semibold hover:bg-rose-100">Rejeter</button>
+                                ` : `
+                                    <button onclick="changerStatutAcompte('${id}', 'Remboursé')" class="px-3 py-1.5 bg-sky-50 text-sky-600 rounded-xl text-xs font-semibold hover:bg-sky-100">Marquer Remboursé</button>
+                                `}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                if(count === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Aucun acompte enregistré.</td></tr>`;
+                }
+            } catch(err) {
+                console.error(err);
+            }
+        }
+
+        window.changerStatutAcompte = async function(id, nouveauStatut) {
+            try {
+                await updateDoc(doc(db, "acomptes_agents", id), { statut: nouveauStatut });
+                afficherNotification(`Acompte mis à jour : ${nouveauStatut}`);
+                chargerAcomptesAdmin();
+            } catch(err) {
+                alert("Erreur : " + err.message);
+            }
+        }
+
+        document.getElementById('form-admin-acompte').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "acomptes_agents"), {
+                    nomAgent: document.getElementById('admin-agent-nom').value,
+                    telephone: document.getElementById('admin-agent-tel').value,
+                    montant: parseFloat(document.getElementById('admin-agent-montant').value),
+                    motif: document.getElementById('admin-agent-motif').value,
+                    statut: "Validé",
+                    date: new Date().toISOString()
+                });
+                closeModal('modal-nouvel-acompte');
+                document.getElementById('form-admin-acompte').reset();
+                afficherNotification("Acompte octroyé avec succès !");
+                chargerAcomptesAdmin();
+            } catch(err) {
+                alert("Erreur : " + err.message);
+            }
+        });
+    </script>
+</body>
+</html>
