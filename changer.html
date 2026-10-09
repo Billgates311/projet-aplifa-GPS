@@ -3,101 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APLIFA | Changer mon Code PIN</title>
+    <title>APLIFA | Changer le Code PIN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e2e8f0; }
-        html { line-height: 1.5; font-family: ui-sans-serif, system-ui, sans-serif; }
-        body { margin: 0; background-color: #f1f5f9; color: #1e293b; -webkit-font-smoothing: antialiased; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
-        .w-full { width: 100%; }
-        .max-w-lg { max-width: 32rem; }
-        .bg-slate-900 { background-color: #0f172a; }
-        .rounded-35 { border-radius: 35px; }
-        .shadow-2xl { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); }
-        .overflow-hidden { overflow: hidden; }
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .border { border-width: 1px; }
-        .border-slate-800 { border-color: #1e293b; }
-        .p-6 { padding: 1.5rem; }
-        @media (min-width: 640px) { .sm-p-8 { padding: 2rem; } }
-        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
-        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
-        .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
-        .text-white { color: #fff; }
-        .text-center { text-align: center; }
-        .w-16 { width: 4rem; }
-        .h-16 { height: 4rem; }
-        .object-cover { object-fit: cover; }
-        .rounded-full { border-radius: 9999px; }
-        .mx-auto { margin-left: auto; margin-right: auto; }
-        .border-2 { border-width: 2px; }
-        .border-accent { border-color: #10b981; }
-        .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
-        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
-        .font-black { font-weight: 900; }
-        .text-xs { font-size: 0.75rem; line-height: 1rem; }
-        .text-slate-400 { color: #94a3b8; }
-        .block { display: block; }
-        .font-semibold { font-weight: 600; }
-        .uppercase { text-transform: uppercase; }
-        .mb-1-5 { margin-bottom: 0.375rem; }
-        .px-4 { padding-left: 1rem; padding-right: 1rem; }
-        .py-3-5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
-        .bg-slate-800 { background-color: #1e293b; }
-        .border-slate-700 { border-color: #334155; }
-        .rounded-2xl { border-radius: 1rem; }
-        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-        .outline-none { outline: 2px solid transparent; outline-offset: 2px; }
-        .tracking-widest { letter-spacing: 0.1em; }
-        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-        .bg-accent { background-color: #10b981; }
-        .text-primary { color: #0f172a; }
-        .font-bold { font-weight: 700; }
-        .transition { transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1); }
-        .pt-2 { padding-top: 0.5rem; }
-        .border-t { border-top-width: 1px; }
-        a { text-decoration: inherit; color: inherit; }
-        input { font-family: inherit; font-size: 100%; color: inherit; margin: 0; padding: 0; }
-        button { cursor: pointer; background: transparent; }
+        :root {
+            --primary: #0f172a;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --bggray: #f1f5f9;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bggray);
+            color: var(--slate-800);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .wrapper {
+            max-width: 28rem;
+            width: 100%;
+        }
+
+        .card {
+            background-color: var(--slate-900);
+            border-radius: 35px;
+            padding: 32px;
+            color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--slate-800);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header-section {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .logo-container {
+            width: 64px;
+            height: 64px;
+            background-color: #ffffff;
+            border-radius: 9999px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--slate-700);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 9999px;
+        }
+
+        .title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+            margin-top: 2px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .input-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-block label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            border-radius: 12px;
+            font-size: 12px;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field::placeholder {
+            color: var(--slate-500);
+        }
+
+        .input-field:focus {
+            border-color: var(--accent);
+        }
+
+        .input-pin {
+            letter-spacing: 0.2em;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent);
+            color: #030712;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .footer-link {
+            text-align: center;
+            padding-top: 8px;
+        }
+
+        .footer-link a {
+            font-size: 12px;
+            color: var(--slate-400);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: #ffffff;
+        }
+
+        .footer-link i {
+            margin-right: 6px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="w-full max-w-lg bg-slate-900 rounded-35 shadow-2xl overflow-hidden flex flex-col border border-slate-800 p-6 sm-p-8 space-y-6 text-white">
+    <div class="wrapper">
         
-        <div class="text-center space-y-2">
-            <img src="logo.jpeg" alt="Logo APLIFA" class="w-16 h-16 object-cover rounded-full mx-auto border-2 border-accent shadow-lg">
-            <h1 class="text-2xl font-black">Changer le Code PIN</h1>
-            <p class="text-xs text-slate-400">Mettez à jour votre code secret de sécurité</p>
+        <!-- CARTE PRINCIPALE NOIRE AUX BORDS ARRONDIS -->
+        <div class="card">
+            
+            <!-- EN-TÊTE AVEC LE LOGO -->
+            <div class="header-section">
+                <div class="logo-container">
+                    <img src="logo.jpeg" alt="Logo APLIFA">
+                </div>
+                <div>
+                    <h1 class="title">Changer le Code PIN</h1>
+                    <p class="subtitle">Mettez à jour votre code secret de sécurité</p>
+                </div>
+            </div>
+
+            <!-- FORMULAIRE DE CHANGEMENT DE PIN -->
+            <form id="form-change-pin" onsubmit="gererChangementPin(event)" class="form-group">
+                
+                <div class="input-block">
+                    <label>Numéro de téléphone</label>
+                    <input type="tel" id="change-telephone" maxlength="10" required placeholder="+243..." class="input-field">
+                </div>
+
+                <div class="input-block">
+                    <label>Ancien Code PIN (4 chiffres)</label>
+                    <input type="password" id="old-pin" maxlength="4" required placeholder="••••" class="input-field input-pin">
+                </div>
+
+                <div class="input-block">
+                    <label>Nouveau Code PIN (4 chiffres)</label>
+                    <input type="password" id="new-pin" maxlength="4" required placeholder="••••" class="input-field input-pin">
+                </div>
+
+                <div class="input-block">
+                    <label>Confirmer le nouveau PIN</label>
+                    <input type="password" id="confirm-pin" maxlength="4" required placeholder="••••" class="input-field input-pin">
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    Mettre à jour le Code PIN
+                </button>
+            </form>
+
+            <!-- LIEN RETOUR -->
+            <div class="footer-link">
+                <a href="index.html">
+                    <i class="fa-solid fa-arrow-left"></i> Retour à la connexion
+                </a>
+            </div>
+
         </div>
 
-        <form id="form-changer-pin" onsubmit="changerPin(event)" class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1-5">Numéro de Téléphone</label>
-                <input type="tel" id="chg-tel" required placeholder="+243..." class="w-full px-4 py-3-5 bg-slate-800 border border-slate-700 rounded-2xl text-sm text-white outline-none">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1-5">Ancien Code PIN (4 chiffres)</label>
-                <input type="password" id="chg-ancien-pin" maxlength="4" required placeholder="••••" class="w-full px-4 py-3-5 bg-slate-800 border border-slate-700 rounded-2xl text-sm tracking-widest text-white outline-none">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1-5">Nouveau Code PIN (4 chiffres)</label>
-                <input type="password" id="chg-nouveau-pin" maxlength="4" required placeholder="••••" class="w-full px-4 py-3-5 bg-slate-800 border border-slate-700 rounded-2xl text-sm tracking-widest text-white outline-none">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1-5">Confirmer le Nouveau PIN</label>
-                <input type="password" id="chg-confirmer-pin" maxlength="4" required placeholder="••••" class="w-full px-4 py-3-5 bg-slate-800 border border-slate-700 rounded-2xl text-sm tracking-widest text-white outline-none">
-            </div>
-            <button type="submit" class="w-full py-4 bg-accent text-primary font-bold rounded-2xl transition text-sm shadow-lg">
-                Mettre à jour le Code PIN
-            </button>
-        </form>
-
-        <div class="text-center pt-2 border-t border-slate-800">
-            <a href="index.html" class="text-xs text-slate-400 transition">← Retour à la connexion</a>
-        </div>
     </div>
 
+    <!-- LOGIQUE FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -112,51 +254,49 @@
         };
         const db = getFirestore(initializeApp(firebaseConfig));
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedTel = localStorage.getItem('clientTel');
-            if (savedTel) {
-                document.getElementById('chg-tel').value = savedTel;
-            }
-        });
-
-        window.changerPin = async function(e) {
+        window.gererChangementPin = async function(e) {
             e.preventDefault();
-            const tel = document.getElementById('chg-tel').value.trim();
-            const ancienPin = document.getElementById('chg-ancien-pin').value.trim();
-            const nouveauPin = document.getElementById('chg-nouveau-pin').value.trim();
-            const confirmerPin = document.getElementById('chg-confirmer-pin').value.trim();
+            const telephone = document.getElementById('change-telephone').value.trim();
+            const oldPin = document.getElementById('old-pin').value.trim();
+            const newPin = document.getElementById('new-pin').value.trim();
+            const confirmPin = document.getElementById('confirm-pin').value.trim();
 
-            if (nouveauPin !== confirmerPin) {
+            if (newPin !== confirmPin) {
                 alert("Le nouveau code PIN et la confirmation ne correspondent pas.");
                 return;
             }
 
+            if (newPin.length !== 4 || isNaN(newPin)) {
+                alert("Le code PIN doit être composé exactement de 4 chiffres.");
+                return;
+            }
+
             try {
-                const q = query(collection(db, "credits"), where("telephone", "==", tel));
+                const q = query(collection(db, "agents_kyc"), where("telephone", "==", telephone));
                 const snap = await getDocs(q);
 
                 if (snap.empty) {
-                    alert("Aucun compte trouvé avec ce numéro de téléphone.");
+                    alert("Aucun agent trouvé avec ce numéro de téléphone.");
                     return;
                 }
 
-                const userDoc = snap.docs[0];
-                const data = userDoc.data();
+                const agentDocSnap = snap.docs[0];
+                const agentData = agentDocSnap.data();
 
-                if (String(data.pin).trim() !== String(ancienPin)) {
+                if (agentData.pin !== oldPin) {
                     alert("L'ancien code PIN est incorrect.");
                     return;
                 }
 
-                await updateDoc(doc(db, "credits", userDoc.id), {
-                    pin: nouveauPin
+                await updateDoc(doc(db, "agents_kyc", agentDocSnap.id), {
+                    pin: newPin
                 });
 
-                alert("Votre code PIN a été modifié avec succès !");
+                alert("Votre code PIN a été mis à jour avec succès !");
                 window.location.href = "index.html";
 
             } catch (err) {
-                alert("Erreur lors de la modification : " + err.message);
+                alert("Erreur lors de la mise à jour : " + err.message);
             }
         }
     </script>
